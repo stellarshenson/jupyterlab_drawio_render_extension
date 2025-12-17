@@ -1,5 +1,119 @@
 /*
+    Draw.io Viewer Widget Styles
     See the JupyterLab Developer Guide for useful CSS Patterns:
-
     https://jupyterlab.readthedocs.io/en/stable/developer/css.html
 */
+
+/* Main widget container */
+.jp-DrawioWidget {
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: var(--jp-layout-color1);
+  height: 100%;
+}
+
+/* Toolbar for page navigation */
+.jp-DrawioWidget-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  background: var(--jp-layout-color2);
+  border-bottom: 1px solid var(--jp-border-color1);
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.jp-DrawioWidget-navBtn {
+  padding: 4px 12px;
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 4px;
+  background: var(--jp-layout-color1);
+  color: var(--jp-ui-font-color1);
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.jp-DrawioWidget-navBtn:hover {
+  background: var(--jp-layout-color3);
+}
+
+.jp-DrawioWidget-navBtn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.jp-DrawioWidget-pageInfo {
+  font-size: 13px;
+  color: var(--jp-ui-font-color1);
+}
+
+/* Diagram container */
+.jp-DrawioWidget-container {
+  flex: 1;
+  overflow: auto;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  background: var(--jp-layout-color0);
+}
+
+/* SVG styling */
+.jp-DrawioWidget-svg {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  min-width: 200px;
+  min-height: 150px;
+}
+
+/* Loading state */
+.jp-DrawioWidget-loading {
+  text-align: center;
+  font-size: 16px;
+  color: var(--jp-ui-font-color2);
+  padding: 40px;
+}
+
+/* Error display */
+.jp-DrawioWidget-error {
+  padding: 20px;
+  color: var(--jp-error-color1);
+  background: var(--jp-layout-color1);
+  overflow: auto;
+  font-family: var(--jp-ui-font-family);
+  height: 100%;
+}
+
+.jp-DrawioWidget-errorContent h3 {
+  margin-top: 0;
+  color: var(--jp-error-color0);
+  font-size: 18px;
+  font-weight: 600;
+}
+
+.jp-DrawioWidget-errorContent p {
+  margin: 10px 0;
+  line-height: 1.6;
+}
+
+.jp-DrawioWidget-troubleshooting {
+  margin-top: 20px;
+  padding: 15px;
+  background: var(--jp-layout-color2);
+  border-radius: 4px;
+}
+
+.jp-DrawioWidget-troubleshooting ul {
+  margin: 10px 0;
+  padding-left: 20px;
+}
+
+.jp-DrawioWidget-troubleshooting li {
+  margin: 5px 0;
+  line-height: 1.6;
+}

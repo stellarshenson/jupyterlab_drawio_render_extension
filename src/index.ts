@@ -3,27 +3,55 @@ import {
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
 
-import { requestAPI } from './request';
+import { DrawioFactory } from './widget';
+
+/**
+ * File type configuration for Draw.io diagrams
+ */
+const FILE_TYPE = {
+  name: 'drawio',
+  displayName: 'Draw.io Diagram',
+  extensions: ['.drawio', '.dio'],
+  mimeTypes: ['application/vnd.jgraph.mxfile', 'application/xml']
+};
 
 /**
  * Initialization data for the jupyterlab_drawio_render_extension extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
   id: 'jupyterlab_drawio_render_extension:plugin',
-  description: 'Jupyterlab extension to just render the drawio diagram (viewer in Jupyterlab)',
+  description:
+    'JupyterLab extension to render Draw.io diagrams (read-only viewer)',
   autoStart: true,
   activate: (app: JupyterFrontEnd) => {
-    console.log('JupyterLab extension jupyterlab_drawio_render_extension is activated!');
+    console.log(
+      'JupyterLab extension jupyterlab_drawio_render_extension is activated!'
+    );
 
-    requestAPI<any>('hello')
-      .then(data => {
-        console.log(data);
-      })
-      .catch(reason => {
-        console.error(
-          `The jupyterlab_drawio_render_extension server extension appears to be missing.\n${reason}`
-        );
-      });
+    const { docRegistry } = app;
+
+    // Register file type
+    docRegistry.addFileType({
+      name: FILE_TYPE.name,
+      displayName: FILE_TYPE.displayName,
+      extensions: FILE_TYPE.extensions,
+      mimeTypes: FILE_TYPE.mimeTypes
+    });
+
+    console.log(`Registered file type: ${FILE_TYPE.name}`);
+
+    // Create and register widget factory
+    const factory = new DrawioFactory({
+      name: 'Draw.io Viewer',
+      modelName: 'text',
+      fileTypes: [FILE_TYPE.name],
+      defaultFor: [FILE_TYPE.name],
+      readOnly: true
+    });
+
+    docRegistry.addWidgetFactory(factory);
+
+    console.log('Draw.io viewer widget factory registered');
   }
 };
 
