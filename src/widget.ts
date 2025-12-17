@@ -2,30 +2,106 @@ import { DocumentWidget } from '@jupyterlab/docregistry';
 import { ABCWidgetFactory, DocumentRegistry } from '@jupyterlab/docregistry';
 import { PromiseDelegate } from '@lumino/coreutils';
 import { Widget } from '@lumino/widgets';
-import pako from 'pako';
+import { PageConfig } from '@jupyterlab/coreutils';
 
-// Import mxgraph factory
-import factory from 'mxgraph';
+// Declare GraphViewer on window
+declare global {
+  interface Window {
+    GraphViewer: any;
+    mxGraphModel: any;
+    mxCell: any;
+    mxGeometry: any;
+    mxPoint: any;
+    mxGraph: any;
+    mxClient: any;
+    mxUtils: any;
+    mxCodec: any;
+    mxEvent: any;
+    Graph: any;
+    mxResources: any;
+    mxLoadResources: boolean;
+    mxLoadStylesheets: boolean;
+    mxBasePath: string;
+    mxImageBasePath: string;
+    STENCIL_PATH: string;
+    SHAPES_PATH: string;
+    STYLE_PATH: string;
+    PROXY_URL: string;
+    DRAW_MATH_URL: string;
+    GRAPH_IMAGE_PATH: string;
+  }
+}
 
-// Initialize mxgraph with resource loading disabled
-const mx = factory({
-  mxBasePath: '',
-  mxLoadResources: false,
-  mxLoadStylesheets: false
-});
+// Promise that resolves when GraphViewer is available
+let viewerReady: Promise<void> | null = null;
 
-const { mxGraph, mxCodec, mxEvent, mxClient } = mx;
+function ensureViewerReady(): Promise<void> {
+  if (viewerReady) {
+    return viewerReady;
+  }
+
+  viewerReady = new Promise((resolve) => {
+    // If already loaded, resolve immediately
+    if (window.GraphViewer) {
+      resolve();
+      return;
+    }
+
+    // Set up globals BEFORE loading viewer to prevent external resource loading
+    window.mxLoadResources = false;
+    window.mxLoadStylesheets = false;
+    window.mxBasePath = '';
+    window.mxImageBasePath = '';
+    window.STENCIL_PATH = '';
+    window.SHAPES_PATH = '';
+    window.STYLE_PATH = '';
+    window.PROXY_URL = '';
+    window.DRAW_MATH_URL = '';
+    window.GRAPH_IMAGE_PATH = '';
+
+    // Load viewer script from server static endpoint
+    const baseUrl = PageConfig.getBaseUrl();
+    const viewerUrl = `${baseUrl}jupyterlab-drawio-render-extension/static/viewer-static.min.js`;
+
+    console.log('[DrawIO] Loading viewer from:', viewerUrl);
+
+    const script = document.createElement('script');
+
+    script.onload = () => {
+      console.log('[DrawIO] Viewer script loaded successfully');
+
+      // Wait a tick for script to initialize
+      setTimeout(() => {
+        if (window.GraphViewer) {
+          console.log('[DrawIO] GraphViewer available');
+          resolve();
+        } else {
+          console.error('[DrawIO] GraphViewer not found after script load');
+          resolve();
+        }
+      }, 100);
+    };
+
+    script.onerror = (e) => {
+      console.error('[DrawIO] Failed to load viewer script:', e);
+      resolve();
+    };
+
+    script.src = viewerUrl;
+    document.head.appendChild(script);
+  });
+
+  return viewerReady;
+}
 
 /**
- * A widget for displaying Draw.io diagrams using mxgraph
+ * A widget for displaying Draw.io diagrams using the official GraphViewer
  */
 export class DrawioWidget extends Widget {
   private _context: DocumentRegistry.Context;
   private _ready = new PromiseDelegate<void>();
   private _container: HTMLDivElement;
   private _errorDiv: HTMLDivElement;
-  private _graphContainer: HTMLDivElement | null = null;
-  private _graph: any = null;
 
   constructor(context: DocumentRegistry.Context) {
     super();
@@ -92,246 +168,76 @@ export class DrawioWidget extends Widget {
   }
 
   /**
-   * Render the diagram using mxgraph
+   * Render the diagram using GraphViewer
    */
   private async _renderDiagram(xmlContent: string): Promise<void> {
-    console.log('[DrawIO] Starting render...');
+    console.log('[DrawIO] Starting render with GraphViewer...');
+
+    // Wait for GraphViewer to be available
+    await ensureViewerReady();
+
+    if (!window.GraphViewer) {
+      throw new Error('GraphViewer not available - viewer library failed to load');
+    }
+
+    console.log('[DrawIO] GraphViewer available');
 
     // Clear container
     this._container.innerHTML = '';
     this._errorDiv.style.display = 'none';
     this._container.style.display = 'block';
 
-    // Create graph container
-    this._graphContainer = document.createElement('div');
-    this._graphContainer.className = 'jp-DrawioWidget-graph';
-    this._graphContainer.style.width = '100%';
-    this._graphContainer.style.height = '100%';
-    this._graphContainer.style.overflow = 'auto';
-    this._container.appendChild(this._graphContainer);
+    // Create viewer container
+    const viewerContainer = document.createElement('div');
+    viewerContainer.className = 'jp-DrawioWidget-viewer';
+    viewerContainer.style.width = '100%';
+    viewerContainer.style.height = '100%';
+    viewerContainer.style.overflow = 'auto';
+    this._container.appendChild(viewerContainer);
 
-    // Check browser support
-    if (!mxClient.isBrowserSupported()) {
-      throw new Error('Browser not supported for mxGraph');
-    }
-    console.log('[DrawIO] Browser supported');
+    // Create the mxgraph div that GraphViewer expects
+    const mxgraphDiv = document.createElement('div');
+    mxgraphDiv.className = 'mxgraph';
+    mxgraphDiv.style.width = '100%';
+    mxgraphDiv.style.height = '100%';
 
-    // Parse XML content
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(xmlContent, 'text/xml');
-    console.log('[DrawIO] Parsed XML document');
+    // Configure GraphViewer options
+    const config = {
+      highlight: '#0000ff',
+      nav: true,
+      resize: true,
+      toolbar: 'zoom layers lightbox',
+      edit: null,
+      xml: xmlContent
+    };
 
-    const parseError = xmlDoc.querySelector('parsererror');
-    if (parseError) {
-      throw new Error('Invalid XML: ' + parseError.textContent);
-    }
+    // Set data-mxgraph attribute with configuration
+    mxgraphDiv.setAttribute('data-mxgraph', JSON.stringify(config));
+    viewerContainer.appendChild(mxgraphDiv);
 
-    // Find mxGraphModel - handle both mxfile wrapper and direct mxGraphModel
-    let graphModelNode = xmlDoc.querySelector('mxGraphModel');
-    const mxfileNode = xmlDoc.querySelector('mxfile');
-    console.log('[DrawIO] mxfile found:', !!mxfileNode, 'mxGraphModel found:', !!graphModelNode);
+    console.log('[DrawIO] Processing element with GraphViewer...');
 
-    if (!graphModelNode && mxfileNode) {
-      // Try to find diagram content - may be compressed
-      const diagramNode = xmlDoc.querySelector('diagram');
-      console.log('[DrawIO] diagram node found:', !!diagramNode);
-      if (diagramNode) {
-        const diagramContent = diagramNode.textContent;
-        console.log('[DrawIO] diagram content length:', diagramContent?.length);
-        if (diagramContent) {
-          // Try to decode compressed content
-          const decodedXml = this._decodeDrawioContent(diagramContent);
-          console.log('[DrawIO] decoded XML length:', decodedXml?.length);
-          console.log('[DrawIO] decoded XML preview:', decodedXml?.substring(0, 200));
-          if (decodedXml) {
-            const decodedDoc = parser.parseFromString(decodedXml, 'text/xml');
-            graphModelNode = decodedDoc.querySelector('mxGraphModel');
-            console.log('[DrawIO] mxGraphModel from decoded:', !!graphModelNode);
-          }
-        }
-      }
-    }
-
-    if (!graphModelNode) {
-      throw new Error(
-        'Not a valid Draw.io file: missing mxGraphModel element'
-      );
-    }
-
-    console.log('[DrawIO] Creating mxGraph instance...');
-    // Create mxGraph instance
-    this._graph = new mxGraph(this._graphContainer);
-    console.log('[DrawIO] mxGraph created:', !!this._graph);
-
-    // Configure graph for viewing
-    this._graph.setEnabled(false); // Read-only
-    this._graph.setPanning(true);
-    this._graph.panningHandler.useLeftButtonForPanning = true;
-    this._graph.setTooltips(true);
-    this._graph.centerZoom = true;
-
-    // Enable mouse wheel zoom
-    mxEvent.addMouseWheelListener((evt: any, up: boolean) => {
-      if (this._graph && mxEvent.isConsumed(evt)) {
-        return;
-      }
-      if (up) {
-        this._graph.zoomIn();
+    // Use GraphViewer to render
+    try {
+      // GraphViewer.processElements processes all .mxgraph divs
+      // But we can also create a viewer directly for more control
+      if (window.GraphViewer.createViewerForElement) {
+        window.GraphViewer.createViewerForElement(mxgraphDiv);
       } else {
-        this._graph.zoomOut();
+        // Fallback to processElements
+        window.GraphViewer.processElements(viewerContainer);
       }
-      mxEvent.consume(evt);
-    }, this._graphContainer);
-
-    // Use mxCodec to decode the XML
-    console.log('[DrawIO] Decoding with mxCodec...');
-
-    const model = this._graph.getModel();
-
-    // Try using the codec's decodeCell method
-    const doc = graphModelNode.ownerDocument;
-    const codec = new mxCodec(doc);
-
-    // The key is to decode the entire mxGraphModel element
-    // which should return a fully populated model
-    model.beginUpdate();
-    try {
-      const decodedModel = codec.decode(graphModelNode);
-      console.log('[DrawIO] Decoded model:', decodedModel);
-
-      if (decodedModel && decodedModel.root) {
-        model.setRoot(decodedModel.root);
-        console.log('[DrawIO] Root set from decoded model');
-      }
-    } finally {
-      model.endUpdate();
-    }
-
-    console.log('[DrawIO] Model root:', model.getRoot());
-    const root = model.getRoot();
-    if (root) {
-      console.log('[DrawIO] Root children count:', root.children ? root.children.length : 0);
-      if (root.children && root.children[0]) {
-        const layer = root.children[0];
-        console.log('[DrawIO] Layer children count:', layer.children ? layer.children.length : 0);
-      }
-    }
-
-    // Refresh and fit to container
-    this._graph.refresh();
-    this._graph.fit();
-    this._graph.center();
-    console.log('[DrawIO] Graph refreshed, fitted and centered');
-
-    // Add toolbar
-    this._addToolbar();
-    console.log('[DrawIO] Render complete');
-  }
-
-  /**
-   * Decode compressed Draw.io content
-   */
-  private _decodeDrawioContent(content: string): string | null {
-    try {
-      // Draw.io uses: base64 -> inflate -> URL decode
-      // First try as plain XML (uncompressed)
-      if (content.trim().startsWith('<')) {
-        return content;
-      }
-
-      // Try base64 decode
-      const decoded = atob(content);
-
-      // Try to inflate (decompress)
-      try {
-        const inflated = this._inflate(decoded);
-        // URL decode
-        return decodeURIComponent(inflated);
-      } catch {
-        // If inflate fails, try direct URL decode
-        try {
-          return decodeURIComponent(decoded);
-        } catch {
-          return decoded;
-        }
-      }
+      console.log('[DrawIO] GraphViewer render complete');
     } catch (e) {
-      console.error('Failed to decode Draw.io content:', e);
-      return null;
+      console.error('[DrawIO] GraphViewer error:', e);
+      throw new Error('GraphViewer failed to render: ' + (e as Error).message);
     }
-  }
-
-  /**
-   * Inflate (decompress) data using pako
-   */
-  private _inflate(data: string): string {
-    // Convert binary string to Uint8Array
-    const bytes = new Uint8Array(data.length);
-    for (let i = 0; i < data.length; i++) {
-      bytes[i] = data.charCodeAt(i);
-    }
-
-    // Use pako to inflate (raw deflate, no header)
-    const inflated = pako.inflateRaw(bytes);
-
-    // Convert back to string
-    return new TextDecoder().decode(inflated);
-  }
-
-  /**
-   * Add toolbar with zoom controls
-   */
-  private _addToolbar(): void {
-    const toolbar = document.createElement('div');
-    toolbar.className = 'jp-DrawioWidget-toolbar';
-
-    const zoomInBtn = document.createElement('button');
-    zoomInBtn.textContent = '+';
-    zoomInBtn.title = 'Zoom In';
-    zoomInBtn.className = 'jp-DrawioWidget-toolbarBtn';
-    zoomInBtn.onclick = () => this._graph?.zoomIn();
-
-    const zoomOutBtn = document.createElement('button');
-    zoomOutBtn.textContent = '-';
-    zoomOutBtn.title = 'Zoom Out';
-    zoomOutBtn.className = 'jp-DrawioWidget-toolbarBtn';
-    zoomOutBtn.onclick = () => this._graph?.zoomOut();
-
-    const fitBtn = document.createElement('button');
-    fitBtn.textContent = 'Fit';
-    fitBtn.title = 'Fit to Window';
-    fitBtn.className = 'jp-DrawioWidget-toolbarBtn';
-    fitBtn.onclick = () => {
-      this._graph?.fit();
-      this._graph?.center();
-    };
-
-    const actualBtn = document.createElement('button');
-    actualBtn.textContent = '100%';
-    actualBtn.title = 'Actual Size';
-    actualBtn.className = 'jp-DrawioWidget-toolbarBtn';
-    actualBtn.onclick = () => {
-      this._graph?.zoomActual();
-      this._graph?.center();
-    };
-
-    toolbar.appendChild(zoomInBtn);
-    toolbar.appendChild(zoomOutBtn);
-    toolbar.appendChild(fitBtn);
-    toolbar.appendChild(actualBtn);
-
-    this._container.insertBefore(toolbar, this._graphContainer);
   }
 
   /**
    * Handle content change signal
    */
   private _onContentChanged(): void {
-    // Dispose existing graph
-    if (this._graph) {
-      this._graph.destroy();
-      this._graph = null;
-    }
     void this._loadDiagram();
   }
 
@@ -378,13 +284,6 @@ export class DrawioWidget extends Widget {
     }
 
     this._context.model.contentChanged.disconnect(this._onContentChanged, this);
-
-    if (this._graph) {
-      this._graph.destroy();
-      this._graph = null;
-    }
-
-    this._graphContainer = null;
 
     super.dispose();
   }

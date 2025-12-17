@@ -3716,13 +3716,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@types/pako@npm:^2.0.4":
-  version: 2.0.4
-  resolution: "@types/pako@npm:2.0.4"
-  checksum: 7e7b090c27cdbed4a8c21f7dfa466ad1c6b5c29afbcaaa24b35e83803d2b6b6cd552060060d8832058cf3809787baaab47a6a974b69d75a2a2dc59d21b607ee8
-  languageName: node
-  linkType: hard
-
 "@types/prop-types@npm:*":
   version: 15.7.15
   resolution: "@types/prop-types@npm:15.7.15"
@@ -7800,7 +7793,6 @@ __metadata:
     "@lumino/widgets": ^2.0.0
     "@types/jest": ^29.2.0
     "@types/json-schema": ^7.0.11
-    "@types/pako": ^2.0.4
     "@types/react": ^18.0.26
     "@types/react-addons-linked-state-mixin": ^0.14.22
     "@typescript-eslint/eslint-plugin": ^6.1.0
@@ -7811,9 +7803,7 @@ __metadata:
     eslint-plugin-prettier: ^5.0.0
     jest: ^29.2.0
     mkdirp: ^1.0.3
-    mxgraph: ^4.2.2
     npm-run-all2: ^7.0.1
-    pako: ^2.1.0
     prettier: ^3.0.0
     rimraf: ^5.0.1
     source-map-loader: ^1.0.2
@@ -8496,13 +8486,6 @@ __metadata:
   languageName: node
   linkType: hard
 
-"mxgraph@npm:^4.2.2":
-  version: 4.2.2
-  resolution: "mxgraph@npm:4.2.2"
-  checksum: 2f4fe960f56c1141ebbb4c8833a6b31558dd828a2e5f2c5906b9074e2a27f565590a4633a666916a1317a7153af1b494c3e8e840ff58de271e138d01d5b8734d
-  languageName: node
-  linkType: hard
-
 "nanoid@npm:^3.3.11":
   version: 3.3.11
   resolution: "nanoid@npm:3.3.11"
@@ -8741,13 +8724,6 @@ __metadata:
   version: 1.6.0
   resolution: "package-manager-detector@npm:1.6.0"
   checksum: 154d55225e70e32582f59b5d4a46d25716f0730a14d7e4b6f0fd76c870c720cc6f448d2becca06a15f2042492f0293cf26e5ad8fcd85d0eab0af3b9b46c0b43a
-  languageName: node
-  linkType: hard
-
-"pako@npm:^2.1.0":
-  version: 2.1.0
-  resolution: "pako@npm:2.1.0"
-  checksum: 71666548644c9a4d056bcaba849ca6fd7242c6cf1af0646d3346f3079a1c7f4a66ffec6f7369ee0dc88f61926c10d6ab05da3e1fca44b83551839e89edd75a3e
   languageName: node
   linkType: hard
 
