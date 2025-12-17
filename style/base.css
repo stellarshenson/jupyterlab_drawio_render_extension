@@ -108,3 +108,24 @@
   margin: 5px 0;
   line-height: 1.6;
 }
+
+/* GraphViewer container - ensure full width */
+.jp-DrawioWidget-viewer {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* GraphViewer mxgraph div - ensure full width */
+.jp-DrawioWidget-viewer .mxgraph {
+  width: 100% !important;
+  height: 100% !important;
+}
+
+/* GraphViewer toolbar - ensure full width */
+.jp-DrawioWidget-viewer .geDiagramContainer {
+  width: 100% !important;
+}
+
+.jp-DrawioWidget-viewer > div {
+  width: 100% !important;
+}
