@@ -13,66 +13,57 @@
   height: 100%;
 }
 
-/* Toolbar for page navigation */
-.jp-DrawioWidget-toolbar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 8px;
-  background: var(--jp-layout-color2);
-  border-bottom: 1px solid var(--jp-border-color1);
-  gap: 12px;
-  flex-shrink: 0;
-}
-
-.jp-DrawioWidget-navBtn {
-  padding: 4px 12px;
-  border: 1px solid var(--jp-border-color1);
-  border-radius: 4px;
-  background: var(--jp-layout-color1);
-  color: var(--jp-ui-font-color1);
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: bold;
-}
-
-.jp-DrawioWidget-navBtn:hover {
-  background: var(--jp-layout-color3);
-}
-
-.jp-DrawioWidget-navBtn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.jp-DrawioWidget-pageInfo {
-  font-size: 13px;
-  color: var(--jp-ui-font-color1);
-}
-
 /* Diagram container */
 .jp-DrawioWidget-container {
   flex: 1;
-  overflow: auto;
+  overflow: hidden;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  padding: 20px;
+  flex-direction: column;
   background: var(--jp-layout-color0);
 }
 
-/* SVG styling */
-.jp-DrawioWidget-svg {
-  max-width: 100%;
-  max-height: 100%;
-  width: auto;
-  height: auto;
-  min-width: 200px;
-  min-height: 150px;
+/* Toolbar */
+.jp-DrawioWidget-toolbar {
+  display: flex;
+  gap: 4px;
+  padding: 8px;
+  background: var(--jp-layout-color2);
+  border-bottom: 1px solid var(--jp-border-color1);
+}
+
+.jp-DrawioWidget-toolbarBtn {
+  padding: 4px 12px;
+  font-size: 13px;
+  border: 1px solid var(--jp-border-color1);
+  border-radius: 3px;
+  background: var(--jp-layout-color1);
+  color: var(--jp-ui-font-color1);
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.jp-DrawioWidget-toolbarBtn:hover {
+  background: var(--jp-layout-color3);
+}
+
+.jp-DrawioWidget-toolbarBtn:active {
+  background: var(--jp-brand-color3);
+}
+
+/* Graph container */
+.jp-DrawioWidget-graph {
+  flex: 1;
+  overflow: auto;
+  background: white;
 }
 
 /* Loading state */
 .jp-DrawioWidget-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100%;
   text-align: center;
   font-size: 16px;
   color: var(--jp-ui-font-color2);

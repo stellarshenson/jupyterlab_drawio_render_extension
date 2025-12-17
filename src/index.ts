@@ -6,14 +6,45 @@ import {
 import { DrawioFactory } from './widget';
 
 /**
- * File type configuration for Draw.io diagrams
+ * Extensions we handle
  */
-const FILE_TYPE = {
-  name: 'drawio',
-  displayName: 'Draw.io Diagram',
-  extensions: ['.drawio', '.dio'],
-  mimeTypes: ['application/vnd.jgraph.mxfile', 'application/xml']
-};
+const DRAWIO_EXTENSIONS = ['.drawio', '.dio'];
+
+/**
+ * Default file type name
+ */
+const DEFAULT_FILE_TYPE = 'drawio';
+
+/**
+ * Find existing file type that handles .drawio extension
+ */
+function findDrawioFileType(docRegistry: any): string | null {
+  // Check common file type names first (including vscode-icons extension)
+  const commonNames = [
+    'vscode-drawio',
+    'drawio',
+    'Drawio',
+    'DrawIO',
+    'diagram'
+  ];
+  for (const name of commonNames) {
+    const ft = docRegistry.getFileType(name);
+    if (ft) {
+      return name;
+    }
+  }
+
+  // Search all file types for one handling .drawio
+  const fileTypes = docRegistry.fileTypes();
+  for (const ft of fileTypes) {
+    const extensions = ft.extensions || [];
+    if (extensions.some((ext: string) => DRAWIO_EXTENSIONS.includes(ext))) {
+      return ft.name;
+    }
+  }
+
+  return null;
+}
 
 /**
  * Initialization data for the jupyterlab_drawio_render_extension extension.
@@ -30,22 +61,32 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     const { docRegistry } = app;
 
-    // Register file type
-    docRegistry.addFileType({
-      name: FILE_TYPE.name,
-      displayName: FILE_TYPE.displayName,
-      extensions: FILE_TYPE.extensions,
-      mimeTypes: FILE_TYPE.mimeTypes
-    });
+    // Find existing file type for .drawio
+    let fileTypeName = findDrawioFileType(docRegistry);
 
-    console.log(`Registered file type: ${FILE_TYPE.name}`);
+    if (!fileTypeName) {
+      // Register minimal file type only if absolutely none exists
+      // Don't set icon - let vscode-icons or other extensions handle it
+      fileTypeName = DEFAULT_FILE_TYPE;
+      docRegistry.addFileType({
+        name: fileTypeName,
+        displayName: 'Draw.io Diagram',
+        extensions: DRAWIO_EXTENSIONS,
+        mimeTypes: ['application/vnd.jgraph.mxfile']
+      });
+      console.log(`Registered file type: ${fileTypeName}`);
+    } else {
+      console.log(
+        `Using existing file type '${fileTypeName}' for Draw.io diagrams`
+      );
+    }
 
     // Create and register widget factory
     const factory = new DrawioFactory({
       name: 'Draw.io Viewer',
       modelName: 'text',
-      fileTypes: [FILE_TYPE.name],
-      defaultFor: [FILE_TYPE.name],
+      fileTypes: [fileTypeName],
+      defaultFor: [fileTypeName],
       readOnly: true
     });
 
