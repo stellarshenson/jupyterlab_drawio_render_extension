@@ -56,6 +56,9 @@ const plugin: JupyterFrontEndPlugin<void> = {
     app: JupyterFrontEnd,
     settingRegistry: ISettingRegistry | null
   ) => {
+    console.log(
+      'JupyterLab extension jupyterlab_drawio_render_extension is activated!'
+    );
     const { docRegistry } = app;
 
     // Register file type with icon
