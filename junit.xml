@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="jest tests" tests="38" failures="0" errors="0" time="1.682">
+  <testsuite name="jupyterlab_drawio_render_extension" errors="0" failures="0" skipped="0" timestamp="2025-12-18T10:32:15" time="1.096" tests="38">
+    <testcase classname="jupyterlab_drawio_render_extension Filename Generation should generate PNG filename from simple path" name="jupyterlab_drawio_render_extension Filename Generation should generate PNG filename from simple path" time="0.001">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Filename Generation should generate PNG filename from path with directory" name="jupyterlab_drawio_render_extension Filename Generation should generate PNG filename from path with directory" time="0.001">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Filename Generation should generate PNG filename from .dio extension" name="jupyterlab_drawio_render_extension Filename Generation should generate PNG filename from .dio extension" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Filename Generation should handle empty path with fallback" name="jupyterlab_drawio_render_extension Filename Generation should handle empty path with fallback" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Filename Generation should handle path with multiple extensions" name="jupyterlab_drawio_render_extension Filename Generation should handle path with multiple extensions" time="0.001">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Filename Generation should handle path with spaces" name="jupyterlab_drawio_render_extension Filename Generation should handle path with spaces" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension DPI Validation should accept minimum DPI of 72" name="jupyterlab_drawio_render_extension DPI Validation should accept minimum DPI of 72" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension DPI Validation should accept maximum DPI of 1200" name="jupyterlab_drawio_render_extension DPI Validation should accept maximum DPI of 1200" time="0.001">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension DPI Validation should accept default DPI of 300" name="jupyterlab_drawio_render_extension DPI Validation should accept default DPI of 300" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension DPI Validation should reject DPI below 72" name="jupyterlab_drawio_render_extension DPI Validation should reject DPI below 72" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension DPI Validation should reject DPI above 1200" name="jupyterlab_drawio_render_extension DPI Validation should reject DPI above 1200" time="0.001">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension DPI Validation should accept common print DPI of 150" name="jupyterlab_drawio_render_extension DPI Validation should accept common print DPI of 150" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension DPI Validation should accept high quality DPI of 600" name="jupyterlab_drawio_render_extension DPI Validation should accept high quality DPI of 600" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Background Color Validation should accept valid 6-digit hex color" name="jupyterlab_drawio_render_extension Background Color Validation should accept valid 6-digit hex color" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Background Color Validation should accept valid 3-digit hex color" name="jupyterlab_drawio_render_extension Background Color Validation should accept valid 3-digit hex color" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Background Color Validation should accept uppercase hex color" name="jupyterlab_drawio_render_extension Background Color Validation should accept uppercase hex color" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Background Color Validation should accept mixed case hex color" name="jupyterlab_drawio_render_extension Background Color Validation should accept mixed case hex color" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Background Color Validation should reject color without hash" name="jupyterlab_drawio_render_extension Background Color Validation should reject color without hash" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Background Color Validation should reject invalid length" name="jupyterlab_drawio_render_extension Background Color Validation should reject invalid length" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Background Color Validation should reject invalid characters" name="jupyterlab_drawio_render_extension Background Color Validation should reject invalid characters" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Background Color Validation should accept white color" name="jupyterlab_drawio_render_extension Background Color Validation should accept white color" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Background Color Validation should accept black color" name="jupyterlab_drawio_render_extension Background Color Validation should accept black color" time="0.001">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Export Background Options should recognize transparent as valid" name="jupyterlab_drawio_render_extension Export Background Options should recognize transparent as valid" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Export Background Options should recognize white as valid" name="jupyterlab_drawio_render_extension Export Background Options should recognize white as valid" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Export Background Options should recognize black as valid" name="jupyterlab_drawio_render_extension Export Background Options should recognize black as valid" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Export Background Options should recognize custom as valid" name="jupyterlab_drawio_render_extension Export Background Options should recognize custom as valid" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Export Background Options should reject invalid background option" name="jupyterlab_drawio_render_extension Export Background Options should reject invalid background option" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Viewer Background Options should recognize default as valid" name="jupyterlab_drawio_render_extension Viewer Background Options should recognize default as valid" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Viewer Background Options should recognize black as valid" name="jupyterlab_drawio_render_extension Viewer Background Options should recognize black as valid" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Viewer Background Options should recognize white as valid" name="jupyterlab_drawio_render_extension Viewer Background Options should recognize white as valid" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Viewer Background Options should recognize custom as valid" name="jupyterlab_drawio_render_extension Viewer Background Options should recognize custom as valid" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension Viewer Background Options should not include transparent for viewer" name="jupyterlab_drawio_render_extension Viewer Background Options should not include transparent for viewer" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension File Extension Recognition should recognize .drawio files" name="jupyterlab_drawio_render_extension File Extension Recognition should recognize .drawio files" time="0.001">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension File Extension Recognition should recognize .dio files" name="jupyterlab_drawio_render_extension File Extension Recognition should recognize .dio files" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension File Extension Recognition should not recognize .xml files" name="jupyterlab_drawio_render_extension File Extension Recognition should not recognize .xml files" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension File Extension Recognition should not recognize .svg files" name="jupyterlab_drawio_render_extension File Extension Recognition should not recognize .svg files" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension File Extension Recognition should handle uppercase extension" name="jupyterlab_drawio_render_extension File Extension Recognition should handle uppercase extension" time="0">
+    </testcase>
+    <testcase classname="jupyterlab_drawio_render_extension File Extension Recognition should handle files with multiple dots" name="jupyterlab_drawio_render_extension File Extension Recognition should handle files with multiple dots" time="0">
+    </testcase>
+  </testsuite>
+</testsuites>
