@@ -2,6 +2,14 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.0.14
+
+- Fix PNG export to crop to diagram content bounds (removes empty whitespace)
+- Add comprehensive unit test suite (38 tests)
+- Add Playwright/Galata UI tests for widget rendering, commands, and stencils
+- Update README with PNG Export section and reorganized Settings tables
+- Add test fixtures for simple and Veeam diagrams
+
 ## 1.0.12
 
 - Add PNG export functionality with context menu commands
