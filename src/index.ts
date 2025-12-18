@@ -2,9 +2,10 @@ import {
   JupyterFrontEnd,
   JupyterFrontEndPlugin
 } from '@jupyterlab/application';
+import { ISettingRegistry } from '@jupyterlab/settingregistry';
 import { LabIcon } from '@jupyterlab/ui-components';
 
-import { DrawioFactory } from './widget';
+import { DrawioFactory, setBackground, setCustomBackgroundColor } from './widget';
 
 /**
  * Extensions we handle
@@ -34,18 +35,23 @@ const drawioIcon = new LabIcon({
 });
 
 /**
+ * Plugin ID
+ */
+const PLUGIN_ID = 'jupyterlab_drawio_render_extension:plugin';
+
+/**
  * Initialization data for the jupyterlab_drawio_render_extension extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
-  id: 'jupyterlab_drawio_render_extension:plugin',
+  id: PLUGIN_ID,
   description:
     'JupyterLab extension to render Draw.io diagrams (read-only viewer)',
   autoStart: true,
-  activate: (app: JupyterFrontEnd) => {
-    console.log(
-      'JupyterLab extension jupyterlab_drawio_render_extension is activated!'
-    );
-
+  optional: [ISettingRegistry],
+  activate: (
+    app: JupyterFrontEnd,
+    settingRegistry: ISettingRegistry | null
+  ) => {
     const { docRegistry } = app;
 
     // Register file type with icon
@@ -58,7 +64,6 @@ const plugin: JupyterFrontEndPlugin<void> = {
       contentType: 'file',
       icon: drawioIcon
     });
-    console.log(`Registered file type: ${FILE_TYPE_NAME}`);
 
     // Create and register widget factory
     const factory = new DrawioFactory({
@@ -71,7 +76,25 @@ const plugin: JupyterFrontEndPlugin<void> = {
 
     docRegistry.addWidgetFactory(factory);
 
-    console.log('Draw.io viewer widget factory registered');
+    // Load settings if available
+    if (settingRegistry) {
+      settingRegistry
+        .load(PLUGIN_ID)
+        .then(settings => {
+          const updateSettings = () => {
+            const background = settings.get('background').composite as string;
+            const customColor = settings.get('customBackgroundColor')
+              .composite as string;
+            setCustomBackgroundColor(customColor);
+            setBackground(background);
+          };
+          updateSettings();
+          settings.changed.connect(updateSettings);
+        })
+        .catch(() => {
+          // Settings not available, use defaults
+        });
+    }
   }
 };
 

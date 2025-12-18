@@ -1,0 +1,23 @@
+{
+  "title": "Draw.io Viewer",
+  "description": "Settings for the Draw.io diagram viewer",
+  "jupyter.lab.setting-icon": "ui-components:image",
+  "jupyter.lab.setting-icon-label": "Draw.io Viewer",
+  "type": "object",
+  "properties": {
+    "background": {
+      "type": "string",
+      "title": "Background",
+      "description": "Background color for the diagram viewer: default (theme), black, white, or custom",
+      "enum": ["default", "black", "white", "custom"],
+      "default": "default"
+    },
+    "customBackgroundColor": {
+      "type": "string",
+      "title": "Custom Background Color",
+      "description": "Hex color for custom background (e.g., #f0f0f0). Only used when background is set to 'custom'",
+      "default": "#ffffff"
+    }
+  },
+  "additionalProperties": false
+}

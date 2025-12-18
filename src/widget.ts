@@ -35,6 +35,36 @@ declare global {
 // Promise that resolves when GraphViewer is available
 let viewerReady: Promise<void> | null = null;
 
+// Current background setting
+let currentBackground: string = 'default';
+let customBackgroundColor: string = '#ffffff';
+
+// Track all active widgets for background updates
+const activeWidgets: Set<DrawioWidget> = new Set();
+
+/**
+ * Set the custom background color
+ */
+export function setCustomBackgroundColor(color: string): void {
+  customBackgroundColor = color;
+  // If currently using custom, update all widgets
+  if (currentBackground === 'custom') {
+    activeWidgets.forEach(widget =>
+      widget.updateBackground('custom', customBackgroundColor)
+    );
+  }
+}
+
+/**
+ * Set the background for all Draw.io viewers
+ */
+export function setBackground(background: string): void {
+  currentBackground = background;
+  activeWidgets.forEach(widget =>
+    widget.updateBackground(background, customBackgroundColor)
+  );
+}
+
 function ensureViewerReady(): Promise<void> {
   if (viewerReady) {
     return viewerReady;
@@ -111,6 +141,12 @@ export class DrawioWidget extends Widget {
     this.node.appendChild(this._errorDiv);
     this.node.appendChild(this._container);
 
+    // Register widget for background updates
+    activeWidgets.add(this);
+
+    // Apply current background setting
+    this.updateBackground(currentBackground, customBackgroundColor);
+
     // Load and render the diagram
     void this._loadDiagram();
 
@@ -125,6 +161,29 @@ export class DrawioWidget extends Widget {
    */
   get ready(): Promise<void> {
     return this._ready.promise;
+  }
+
+  /**
+   * Update the background color of the viewer
+   */
+  updateBackground(background: string, customColor?: string): void {
+    // Remove existing background classes
+    this.node.classList.remove(
+      'jp-DrawioWidget-bg-default',
+      'jp-DrawioWidget-bg-black',
+      'jp-DrawioWidget-bg-white',
+      'jp-DrawioWidget-bg-custom'
+    );
+
+    if (background === 'custom' && customColor) {
+      // Apply custom color directly via CSS variable
+      this.node.style.setProperty('--jp-drawio-custom-bg', customColor);
+      this.node.classList.add('jp-DrawioWidget-bg-custom');
+    } else {
+      // Remove custom color property and add preset class
+      this.node.style.removeProperty('--jp-drawio-custom-bg');
+      this.node.classList.add(`jp-DrawioWidget-bg-${background}`);
+    }
   }
 
   /**
@@ -262,6 +321,9 @@ export class DrawioWidget extends Widget {
     if (this.isDisposed) {
       return;
     }
+
+    // Unregister widget from background updates
+    activeWidgets.delete(this);
 
     this._context.model.contentChanged.disconnect(this._onContentChanged, this);
 

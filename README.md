@@ -8,14 +8,29 @@
 [![Brought To You By KOLOMOLO](https://img.shields.io/badge/Brought%20To%20You%20By-KOLOMOLO-00ffff?style=flat)](https://kolomolo.com)
 [![Donate PayPal](https://img.shields.io/badge/Donate-PayPal-blue?style=flat)](https://www.paypal.com/donate/?hosted_button_id=B4KPBJDLLXTSA)
 
-View Draw.io diagrams directly in JupyterLab. Open any `.drawio` file and see it rendered as a diagram without leaving your notebook environment.
+View Draw.io diagrams directly in JupyterLab. Open any `.drawio` or `.dio` file and see it rendered with full fidelity - text, shapes, stencils, icons, and styles matching the official Draw.io application.
+
+This extension uses the official [Draw.io viewer library](https://github.com/jgraph/drawio) from jgraph, served locally from the server extension for offline capability and CSP compliance.
+
+![Draw.io Diagram Viewer](.resources/screenshot-diagram-viewer.png)
 
 ## Features
 
-- **Native Draw.io rendering** - View `.drawio` files directly in JupyterLab
+- **Full Draw.io rendering** - Uses official Draw.io viewer library for pixel-perfect diagram display
 - **Read-only viewer** - Safe viewing without accidental modifications
-- **Server-side processing** - Diagram rendering handled by backend extension
+- **Interactive controls** - Zoom, pan, layers panel, and lightbox view
+- **Configurable background** - Choose from default (theme), black, white, or custom hex color
+- **Offline capable** - Viewer library served locally, no external network requests
 - **JupyterLab 4 compatible** - Built for the latest JupyterLab release
+
+## Settings
+
+Configure the viewer background in **Settings > Draw.io Viewer**:
+
+| Setting | Description |
+|---------|-------------|
+| Background | `default` (theme), `black`, `white`, or `custom` |
+| Custom Background Color | Hex color (e.g., `#f0f0f0`) when background is set to `custom` |
 
 ## Requirements
 
@@ -25,11 +40,11 @@ View Draw.io diagrams directly in JupyterLab. Open any `.drawio` file and see it
 ## Installation
 
 ```bash
-pip install jupyterlab_drawio_render_extension
+pip install jupyterlab-drawio-render-extension
 ```
 
 ## Uninstall
 
 ```bash
-pip uninstall jupyterlab_drawio_render_extension
+pip uninstall jupyterlab-drawio-render-extension
 ```

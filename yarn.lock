@@ -2629,7 +2629,7 @@ __metadata:
   languageName: node
   linkType: hard
 
-"@jupyterlab/settingregistry@npm:^4.5.1":
+"@jupyterlab/settingregistry@npm:^4.0.0, @jupyterlab/settingregistry@npm:^4.5.1":
   version: 4.5.1
   resolution: "@jupyterlab/settingregistry@npm:4.5.1"
   dependencies:
@@ -7787,6 +7787,7 @@ __metadata:
     "@jupyterlab/coreutils": ^6.0.0
     "@jupyterlab/docregistry": ^4.0.0
     "@jupyterlab/services": ^7.0.0
+    "@jupyterlab/settingregistry": ^4.0.0
     "@jupyterlab/testutils": ^4.0.0
     "@jupyterlab/ui-components": ^4.5.1
     "@lumino/coreutils": ^2.0.0

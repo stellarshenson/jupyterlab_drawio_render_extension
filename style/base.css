@@ -129,3 +129,24 @@
 .jp-DrawioWidget-viewer > div {
   width: 100% !important;
 }
+
+/* Background options */
+.jp-DrawioWidget-bg-default .jp-DrawioWidget-container,
+.jp-DrawioWidget-bg-default .jp-DrawioWidget-viewer {
+  background: var(--jp-layout-color0);
+}
+
+.jp-DrawioWidget-bg-black .jp-DrawioWidget-container,
+.jp-DrawioWidget-bg-black .jp-DrawioWidget-viewer {
+  background: #000000;
+}
+
+.jp-DrawioWidget-bg-white .jp-DrawioWidget-container,
+.jp-DrawioWidget-bg-white .jp-DrawioWidget-viewer {
+  background: #ffffff;
+}
+
+.jp-DrawioWidget-bg-custom .jp-DrawioWidget-container,
+.jp-DrawioWidget-bg-custom .jp-DrawioWidget-viewer {
+  background: var(--jp-drawio-custom-bg, #ffffff);
+}
