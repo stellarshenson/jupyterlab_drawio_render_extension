@@ -122,7 +122,11 @@ test.describe('Draw.io Viewer Widget', () => {
   </diagram>
 </mxfile>`;
 
-    await page.contents.uploadContent(content, 'text', `${tmpPath}/test.drawio`);
+    await page.contents.uploadContent(
+      content,
+      'text',
+      `${tmpPath}/test.drawio`
+    );
   });
 
   test('should open .drawio file in viewer', async ({ page, tmpPath }) => {
@@ -179,7 +183,11 @@ test.describe('SVG Rendering', () => {
     </mxGraphModel>
   </diagram>
 </mxfile>`;
-    await page.contents.uploadContent(content, 'text', `${tmpPath}/test.drawio`);
+    await page.contents.uploadContent(
+      content,
+      'text',
+      `${tmpPath}/test.drawio`
+    );
   });
 
   test('should render SVG element', async ({ page, tmpPath }) => {
@@ -227,7 +235,11 @@ test.describe('PNG Export', () => {
     </mxGraphModel>
   </diagram>
 </mxfile>`;
-    await page.contents.uploadContent(content, 'text', `${tmpPath}/test.drawio`);
+    await page.contents.uploadContent(
+      content,
+      'text',
+      `${tmpPath}/test.drawio`
+    );
   });
 
   test('should execute Download as PNG command', async ({ page, tmpPath }) => {

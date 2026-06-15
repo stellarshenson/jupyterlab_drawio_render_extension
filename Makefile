@@ -1,5 +1,6 @@
-# Makefile for Jupyterlab extensions version 1.31
+# Makefile for Jupyterlab extensions version 1.32
 # changelog:
+#   1.32 - build uses jlpm install --immutable (drop npm/yarn mix and npx prettier); increment_version syncs package-lock.json; install_dependencies installs only what is missing
 #   1.31 - mrproper now removes ui-tests/node_modules (Playwright browser binaries)
 #   1.30 - check twine in check_dependencies, ensure publish doesn't fail on missing twine
 #   1.29 - replace yarn with jlpm, add prettier format, auto-commit and push after publish
@@ -21,13 +22,12 @@ increment_version:
 	NEW_PATCH=$$((patch + 1)); \
 	NEW_VERSION="$$major.$$minor.$$NEW_PATCH"; \
 	echo "New version: $$NEW_VERSION"; \
-	sed -i "s/\"version\": \"$$CURRENT_VERSION\"/\"version\": \"$$NEW_VERSION\"/" package.json; '
+	sed -i "s/\"version\": \"$$CURRENT_VERSION\"/\"version\": \"$$NEW_VERSION\"/" package.json; \
+	if [ -f package-lock.json ]; then sed -i "1,20 s/\"version\": \"[0-9][0-9.]*\"/\"version\": \"$$NEW_VERSION\"/" package-lock.json; fi; '
 
 ## build packages
 build: clean increment_version check_dependencies
-	npm install
-	jlpm install
-	npx prettier --write package-lock.json package.json
+	jlpm install --immutable
 	python -m build
 
 ## install package
@@ -73,9 +73,9 @@ publish: check_dependencies install
 
 ## install all required build dependencies
 install_dependencies:
-	pip install nodeenv twine
-	nodeenv --node=lts --prebuilt -p
-	npm install -g yarn rimraf
+	@command -v node >/dev/null 2>&1 || { pip install nodeenv && nodeenv --node=lts --prebuilt -p; }
+	@python -m twine --version >/dev/null 2>&1 || pip install twine
+	@command -v yarn >/dev/null 2>&1 || npm install -g yarn rimraf
 
 ## upgrade all npm and yarn dependencies
 upgrade: check_dependencies
