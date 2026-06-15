@@ -418,11 +418,16 @@ export class DrawioWidget extends Widget {
     mxgraphDiv.style.height = '100%';
 
     // Configure GraphViewer options
+    // resize: false keeps the graph container at the fixed viewport size so it
+    // gets its own overflow:auto - this is what enables full-range scrollbars
+    // and drag-to-pan when zoomed in. auto-fit fits a large diagram on open.
     const config = {
       highlight: '#0000ff',
       nav: true,
-      resize: true,
+      resize: false,
+      'auto-fit': true,
       toolbar: 'zoom layers lightbox',
+      'toolbar-position': 'top',
       edit: null,
       xml: xmlContent
     };
