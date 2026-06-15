@@ -158,7 +158,10 @@ async function svgToPng(
 
   // Clone SVG and set viewBox to crop to content
   const svgClone = svg.cloneNode(true) as SVGSVGElement;
-  svgClone.setAttribute('viewBox', `${cropX} ${cropY} ${cropWidth} ${cropHeight}`);
+  svgClone.setAttribute(
+    'viewBox',
+    `${cropX} ${cropY} ${cropWidth} ${cropHeight}`
+  );
   svgClone.setAttribute('width', String(cropWidth));
   svgClone.setAttribute('height', String(cropHeight));
   // Remove any inline width/height styles that might override attributes
@@ -272,6 +275,13 @@ function ensureViewerReady(): Promise<void> {
 
     // Wait a tick for viewer to initialize
     await new Promise(resolve => setTimeout(resolve, 100));
+
+    // Enable zoom on plain mouse wheel (diagrams.net "zoom on scroll" preference).
+    // Without this, only Ctrl+wheel zooms; plain wheel scrolls. Drag-to-pan is
+    // handled by the embed once the container overflows (see resize:false config).
+    if (window.Graph) {
+      window.Graph.zoomWheel = true;
+    }
 
     // Load shapes and stencils for custom shape support (Veeam, Cisco, etc.)
     await loadScript(`${staticBase}/shapes.min.js`);

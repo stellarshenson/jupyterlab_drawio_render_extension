@@ -2,6 +2,14 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.0.16
+
+- Fix viewer toolbar disappearing during use
+- Restore full-range scrollbars and drag-to-pan when a diagram is zoomed in
+- Enable scroll-wheel zoom in and out
+- Auto-fit large diagrams to the viewport on open
+- Switch GraphViewer to fixed-viewport mode (`resize: false`) to fix the above
+
 ## 1.0.14
 
 - Fix PNG export to crop to diagram content bounds (removes empty whitespace)

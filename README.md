@@ -21,7 +21,7 @@ This extension uses the official [Draw.io viewer library](https://github.com/jgr
 
 - **Full Draw.io rendering** - Uses official Draw.io viewer library for pixel-perfect diagram display
 - **Read-only viewer** - Safe viewing without accidental modifications
-- **Interactive controls** - Zoom, pan, layers panel, and lightbox view
+- **Interactive controls** - Scroll to zoom, drag to pan, layers panel, and lightbox view
 - **PNG export** - Right-click to copy or download diagram as PNG with configurable DPI
 - **Configurable background** - Choose from default (theme), black, white, or custom hex color
 - **Full stencil support** - Veeam, Cisco, AWS, Azure, GCP, and all vendor shapes
@@ -31,6 +31,7 @@ This extension uses the official [Draw.io viewer library](https://github.com/jgr
 ## PNG Export
 
 Right-click on any diagram to access export options:
+
 - **Copy Diagram as PNG** - Copy to clipboard at configured DPI
 - **Download Diagram as PNG** - Save as PNG file
 
@@ -42,17 +43,17 @@ Configure the extension in **Settings > Draw.io Viewer**:
 
 ### Viewer Settings
 
-| Setting                 | Description                                                    | Default   |
-| ----------------------- | -------------------------------------------------------------- | --------- |
+| Setting                 | Description                                                      | Default   |
+| ----------------------- | ---------------------------------------------------------------- | --------- |
 | Background              | Viewer background: `default` (theme), `black`, `white`, `custom` | `default` |
-| Custom Background Color | Hex color (e.g., `#f0f0f0`) when background is `custom`        | `#ffffff` |
+| Custom Background Color | Hex color (e.g., `#f0f0f0`) when background is `custom`          | `#ffffff` |
 
 ### Export Settings
 
-| Setting           | Description                                                      | Default |
-| ----------------- | ---------------------------------------------------------------- | ------- |
-| Export DPI        | Resolution for PNG export (72-1200). Higher = larger file        | `300`   |
-| Export Background | PNG background: `transparent`, `white`, `black`, `custom`        | `white` |
+| Setting           | Description                                               | Default |
+| ----------------- | --------------------------------------------------------- | ------- |
+| Export DPI        | Resolution for PNG export (72-1200). Higher = larger file | `300`   |
+| Export Background | PNG background: `transparent`, `white`, `black`, `custom` | `white` |
 
 ## Requirements
 
