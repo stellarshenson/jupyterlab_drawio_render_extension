@@ -2,6 +2,12 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.0.17
+
+- Fix `make build`/`make publish` to run cleanly (jlpm immutable install, drop npx prettier)
+- Sync `package-lock.json` version on release and prettier-ignore the generated lockfile
+- Make the Check Links CI job deterministic by ignoring the unreachable YouTube tutorial link
+
 ## 1.0.16
 
 - Fix viewer toolbar disappearing during use
