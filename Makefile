@@ -1,5 +1,6 @@
-# Makefile for Jupyterlab extensions version 1.32
+# Makefile for Jupyterlab extensions version 1.33
 # changelog:
+#   1.33 - build fetches gitignored drawio shape/stencil assets (shapes.min.js, stencils.min.js) before packaging
 #   1.32 - build uses jlpm install --immutable (drop npm/yarn mix and npx prettier); increment_version syncs package-lock.json; install_dependencies installs only what is missing
 #   1.31 - mrproper now removes ui-tests/node_modules (Playwright browser binaries)
 #   1.30 - check twine in check_dependencies, ensure publish doesn't fail on missing twine
@@ -8,7 +9,7 @@
 # author: Stellars Henson <konrad.jelen@gmail.com>
 # License: MIT Open Source License
 
-.PHONY: build install clean uninstall publish dependencies mrproper increment_version install_dependencies check_dependencies upgrade help test
+.PHONY: build install clean uninstall publish dependencies mrproper increment_version install_dependencies check_dependencies upgrade help test fetch_drawio_assets
 .DEFAULT_GOAL := help
 
 # Read current version from package.json (only if node is available)
@@ -25,8 +26,18 @@ increment_version:
 	sed -i "s/\"version\": \"$$CURRENT_VERSION\"/\"version\": \"$$NEW_VERSION\"/" package.json; \
 	if [ -f package-lock.json ]; then sed -i "1,20 s/\"version\": \"[0-9][0-9.]*\"/\"version\": \"$$NEW_VERSION\"/" package-lock.json; fi; '
 
+## fetch gitignored drawio shape and stencil assets (downloaded once, skipped if present)
+DRAWIO_RAW := https://raw.githubusercontent.com/jgraph/drawio/dev/src/main/webapp/js
+STATIC_DIR := jupyterlab_drawio_render_extension/static
+fetch_drawio_assets:
+	@mkdir -p $(STATIC_DIR)
+	@test -f $(STATIC_DIR)/shapes.min.js || \
+		curl -fsSL -o $(STATIC_DIR)/shapes.min.js $(DRAWIO_RAW)/shapes-14-6-5.min.js
+	@test -f $(STATIC_DIR)/stencils.min.js || \
+		curl -fsSL -o $(STATIC_DIR)/stencils.min.js $(DRAWIO_RAW)/stencils.min.js
+
 ## build packages
-build: clean increment_version check_dependencies
+build: clean increment_version check_dependencies fetch_drawio_assets
 	jlpm install --immutable
 	python -m build
 

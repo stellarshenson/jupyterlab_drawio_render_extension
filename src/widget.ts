@@ -283,12 +283,22 @@ function ensureViewerReady(): Promise<void> {
       window.Graph.zoomWheel = true;
     }
 
-    // Load shapes and stencils for custom shape support (Veeam, Cisco, etc.)
-    await loadScript(`${staticBase}/shapes.min.js`);
-    await loadScript(`${staticBase}/stencils.min.js`);
+    // Load shapes and stencils for custom shape support (Veeam, Cisco, AWS, etc.).
+    // Non-fatal: these optional assets are gitignored and fetched at build time, so
+    // a missing file must degrade gracefully (generic frames, no custom glyphs)
+    // instead of rejecting and blanking the entire viewer.
+    try {
+      await loadScript(`${staticBase}/shapes.min.js`);
+      await loadScript(`${staticBase}/stencils.min.js`);
 
-    // Wait for stencils to register
-    await new Promise(resolve => setTimeout(resolve, 100));
+      // Wait for stencils to register
+      await new Promise(resolve => setTimeout(resolve, 100));
+    } catch (err) {
+      console.warn(
+        'Draw.io: optional shape/stencil assets unavailable, custom glyphs may not render',
+        err
+      );
+    }
   })();
 
   return viewerReady;
