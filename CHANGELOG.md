@@ -2,6 +2,12 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.0.19
+
+- Fix viewer blanking entirely when optional shape/stencil assets are missing (404 no longer fatal)
+- Bundle Draw.io shape and stencil assets so AWS and other vendor service icons render
+- Restore `fetch_drawio_assets` build step to fetch `shapes.min.js` and `stencils.min.js`
+
 ## 1.0.18
 
 - Maintenance release - version bump only, no functional changes
