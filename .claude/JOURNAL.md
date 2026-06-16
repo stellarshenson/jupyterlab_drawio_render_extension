@@ -54,3 +54,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 17. **Task - Release tooling and CI fixes** (v1.0.17): Fix `make publish`/`make build` to run cleanly and make GitHub CI deterministic<br>
     **Result**: The 1.0.16 release exposed two Makefile bugs: `npx prettier` failed on a non-executable `prettier.cjs`, and the `npm install`+`jlpm install` mix in `build` drifted the lockfile forward, breaking `build:prod` in `license-webpack-plugin@4.0.2` (1.0.16 had to be published by hand after restoring the committed lockfiles). Fixed the Makefile (v1.32): `build` now runs `jlpm install --immutable` only, drops the `npx prettier` step, `increment_version` syncs `package-lock.json`, and `install_dependencies` installs only missing tools. Prettier-ignored the generated `package-lock.json`. On GitHub the Check Links job was flaky on the Galata tutorial YouTube link in `ui-tests/README.md`; added `youtube.com` to `ignore_links` in `build.yml`. Landed via PR #1 (squash-merged `486720c`); all workflows green on main.
+
+18. **Task [Short] - Empty version bump** (v1.0.18): User-requested release with no functional changes<br>
+    **Result**: No source changes since 1.0.17; published 1.0.18 to npm and PyPI as an explicit empty version bump at the user's request, exercising the release pipeline once more.

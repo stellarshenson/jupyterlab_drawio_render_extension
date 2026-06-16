@@ -2,6 +2,10 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## 1.0.18
+
+- Maintenance release - version bump only, no functional changes
+
 ## 1.0.17
 
 - Fix `make build`/`make publish` to run cleanly (jlpm immutable install, drop npx prettier)
