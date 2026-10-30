@@ -2,6 +2,16 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## [1.0.23] - 2026-10-30
+
+### Changed
+
+- Upgrade to extension template v4.6.5 and Makefile 1.46
+
+### Fixed
+
+- Take the scoped @stellarshenson/jupyterlab-drawio-render-extension npm name
+
 ## 1.0.19
 
 - Fix viewer blanking entirely when optional shape/stencil assets are missing (404 no longer fatal)
