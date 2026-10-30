@@ -134,3 +134,8 @@ drawio-repo/
 # Generated stencil/shape files from drawio repo
 jupyterlab_drawio_render_extension/static/shapes.min.js
 jupyterlab_drawio_render_extension/static/stencils.min.js
+
+# Run output
+logs/
+tmp/
+.nodeenv/

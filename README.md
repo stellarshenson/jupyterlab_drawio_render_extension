@@ -57,7 +57,7 @@ Configure the extension in **Settings > Draw.io Viewer**:
 
 ## Requirements
 
-- JupyterLab >= 4.0.0
+- JupyterLab >= 4.6.0
 - Python >= 3.10
 
 ## Installation
