@@ -34,7 +34,7 @@ jobs:
         # pytest -vv -r ap --cov jupyterlab_drawio_render_extension
 
         jupyter labextension list
-        jupyter labextension list 2>&1 | grep -ie "jupyterlab_drawio_render_extension.*OK"
+        jupyter labextension list 2>&1 | grep -ie "@stellarshenson/jupyterlab-drawio-render-extension.*OK"
         python -m jupyterlab.browser_check
 
     - name: Check that all endpoints are authenticated
@@ -80,7 +80,7 @@ jobs:
         pip install "jupyterlab>=4.6,<5" jupyterlab_drawio_render_extension*.whl
 
         jupyter labextension list
-        jupyter labextension list 2>&1 | grep -ie "jupyterlab_drawio_render_extension.*OK"
+        jupyter labextension list 2>&1 | grep -ie "@stellarshenson/jupyterlab-drawio-render-extension.*OK"
         python -m jupyterlab.browser_check --no-browser-test
 
   integration-tests:

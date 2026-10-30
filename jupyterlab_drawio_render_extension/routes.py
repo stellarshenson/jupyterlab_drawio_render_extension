@@ -1,10 +1,9 @@
 import json
 import os
 
-from jupyter_server.base.handlers import APIHandler
+from jupyter_server.base.handlers import APIHandler, AuthenticatedFileHandler
 from jupyter_server.utils import url_path_join
 import tornado
-from tornado.web import StaticFileHandler
 
 
 class HelloRouteHandler(APIHandler):
@@ -14,6 +13,7 @@ class HelloRouteHandler(APIHandler):
             "data": (
                 "Hello, world!"
                 " This is the '/jupyterlab-drawio-render-extension/hello' endpoint."
+                " Try visiting me in your browser!"
             ),
         }))
 
@@ -31,7 +31,7 @@ def setup_route_handlers(web_app):
 
     handlers = [
         (hello_route_pattern, HelloRouteHandler),
-        (static_route_pattern, StaticFileHandler, {"path": static_path}),
+        (static_route_pattern, AuthenticatedFileHandler, {"path": static_path}),
     ]
 
     web_app.add_handlers(host_pattern, handlers)

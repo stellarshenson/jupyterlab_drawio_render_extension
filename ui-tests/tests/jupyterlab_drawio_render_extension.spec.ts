@@ -26,7 +26,7 @@ test.describe('Extension Activation', () => {
       logs.filter(
         s =>
           s ===
-          'JupyterLab extension jupyterlab_drawio_render_extension is activated!'
+          'JupyterLab extension @stellarshenson/jupyterlab-drawio-render-extension is activated!'
       )
     ).toHaveLength(1);
   });

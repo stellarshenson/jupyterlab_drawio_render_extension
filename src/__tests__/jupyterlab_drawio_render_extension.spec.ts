@@ -5,7 +5,7 @@
  * These tests cover pure utility functions without complex dependencies
  */
 
-describe('jupyterlab_drawio_render_extension', () => {
+describe('@stellarshenson/jupyterlab-drawio-render-extension', () => {
   describe('Filename Generation', () => {
     /**
      * Helper function to generate PNG filename (mirrors widget.ts implementation)

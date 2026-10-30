@@ -8,7 +8,7 @@ has_ai_rules: false
 has_binder: false
 has_settings: false
 kind: frontend-and-server
-labextension_name: jupyterlab_drawio_render_extension
+labextension_name: '@stellarshenson/jupyterlab-drawio-render-extension'
 project_short_description: Jupyterlab extension to just render the drawio diagram
     (viewer in Jupyterlab)
 python_name: jupyterlab_drawio_render_extension

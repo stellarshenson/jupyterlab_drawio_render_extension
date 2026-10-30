@@ -45,7 +45,7 @@ const drawioIcon = new LabIcon({
 /**
  * Plugin ID
  */
-const PLUGIN_ID = 'jupyterlab_drawio_render_extension:plugin';
+const PLUGIN_ID = '@stellarshenson/jupyterlab-drawio-render-extension:plugin';
 
 /**
  * Command IDs
@@ -70,7 +70,7 @@ function getDrawioWidget(app: JupyterFrontEnd): DrawioWidget | null {
 }
 
 /**
- * Initialization data for the jupyterlab_drawio_render_extension extension.
+ * Initialization data for the @stellarshenson/jupyterlab-drawio-render-extension extension.
  */
 const plugin: JupyterFrontEndPlugin<void> = {
   id: PLUGIN_ID,
@@ -83,7 +83,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
     settingRegistry: ISettingRegistry | null
   ) => {
     console.log(
-      'JupyterLab extension jupyterlab_drawio_render_extension is activated!'
+      'JupyterLab extension @stellarshenson/jupyterlab-drawio-render-extension is activated!'
     );
     const { docRegistry, commands } = app;
 
