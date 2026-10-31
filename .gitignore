@@ -131,7 +131,8 @@ dmypy.json
 # Draw.io repository (cloned during build)
 drawio-repo/
 
-# Generated stencil/shape files from drawio repo
+# Generated viewer/stencil/shape files from drawio repo
+jupyterlab_drawio_render_extension/static/viewer-static.min.js
 jupyterlab_drawio_render_extension/static/shapes.min.js
 jupyterlab_drawio_render_extension/static/stencils.min.js
 

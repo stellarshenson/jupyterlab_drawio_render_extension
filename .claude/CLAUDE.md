@@ -32,7 +32,7 @@ JupyterLab extension for rendering Draw.io diagrams directly in the notebook int
 
 **Package Names**:
 
-- npm: `jupyterlab_drawio_render_extension`
+- npm: `@stellarshenson/jupyterlab-drawio-render-extension`
 - PyPI: `jupyterlab-drawio-render-extension` (hyphenated)
 
 ## Journal Rules (Project-Specific)

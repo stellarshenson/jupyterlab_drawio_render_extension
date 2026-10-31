@@ -1,4 +1,5 @@
-import { expect, test } from '@jupyterlab/galata';
+import { expect, IJupyterLabPageFixture, test } from '@jupyterlab/galata';
+import * as fs from 'fs';
 import * as path from 'path';
 
 /**
@@ -216,10 +217,16 @@ test.describe('SVG Rendering', () => {
   });
 });
 
-// The wheel must hold these git-ignored files: without them the viewer draws
-// generic frames for vendor shapes (AWS, Cisco, Veeam) and every other test passes.
+// The wheel must hold these git-ignored files, all 3 from one upstream release: without
+// shapes and stencils the viewer draws generic frames for vendor shapes (AWS, Cisco,
+// Veeam), and an older viewer throws on the mockup and iOS shapes of a newer shapes file.
+// Every other test passes in both cases.
 test.describe('Draw.io Static Assets', () => {
-  for (const asset of ['shapes.min.js', 'stencils.min.js']) {
+  for (const asset of [
+    'viewer-static.min.js',
+    'shapes.min.js',
+    'stencils.min.js'
+  ]) {
     test(`should serve static/${asset}`, async ({ request }) => {
       const response = await request.get(
         `jupyterlab-drawio-render-extension/static/${asset}`
@@ -227,6 +234,60 @@ test.describe('Draw.io Static Assets', () => {
       expect(response.status()).toBe(200);
     });
   }
+
+  test('should draw vendor, mockup and iOS shapes with viewer.diagrams.net blocked', async ({
+    page,
+    tmpPath
+  }) => {
+    test.setTimeout(120000);
+    await page.route('https://viewer.diagrams.net/**', route => route.abort());
+    await page.goto();
+    const styles = [
+      'shape=mxgraph.aws4.resourceIcon;resIcon=mxgraph.aws4.lambda;fillColor=#ED7100;strokeColor=#ffffff;',
+      'shape=mxgraph.cisco.routers.router;fillColor=#036897;strokeColor=#ffffff;',
+      'shape=mxgraph.veeam.2d.proxy;fillColor=#4495A2;strokeColor=none;',
+      'shape=mxgraph.mockup.navigation.breadcrumb;strokeColor=#c4c4c4;mainText=A,B,C;',
+      'shape=mxgraph.mockup.graphics.gauge;strokeColor=#000000;gaugePos=25;scaleColors=#bbddff,#ddeeff,#99ccff;gaugeLabels=CPU,0,100;',
+      'shape=mxgraph.ios.iButton;fillColor=#dddddd;fillColor2=#bbbbbb;strokeColor=#444444;buttonText=Hit;'
+    ];
+    const vertices = styles.map(
+      (style, i) =>
+        `<mxCell id="${i + 2}" style="${style}" vertex="1" parent="1"><mxGeometry x="${40 + (i % 3) * 140}" y="${40 + Math.floor(i / 3) * 140}" width="100" height="100" as="geometry" /></mxCell>`
+    );
+    const content = `<mxfile host="test">
+  <diagram id="vendor" name="Page-1">
+    <mxGraphModel grid="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        ${vertices.join('\n        ')}
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>`;
+    await page.contents.uploadContent(
+      content,
+      'text',
+      `${tmpPath}/vendor.drawio`
+    );
+    await page.filebrowser.open(`${tmpPath}/vendor.drawio`);
+
+    // One group per cell, in document order. A viewer that throws on a shape draws none.
+    const cells = page.locator(
+      '.jp-DrawioWidget svg g[transform="translate(0.5,0.5)"]'
+    );
+    await expect(cells).toHaveCount(styles.length, { timeout: 90000 });
+    // A plain frame is one rect or path; a vendor shape adds its glyph.
+    for (const i of [0, 1, 2]) {
+      await expect(cells.nth(i).locator('rect')).toHaveCount(0);
+      await expect
+        .poll(() => cells.nth(i).locator('path').count())
+        .toBeGreaterThan(1);
+    }
+    await expect(cells.nth(3)).toContainText('C');
+    await expect(cells.nth(4)).toContainText('CPU');
+    await expect(cells.nth(5)).toContainText('Hit');
+  });
 });
 
 // PNG Export tests - these require SVG to be rendered
@@ -259,9 +320,7 @@ test.describe('PNG Export', () => {
     await page.filebrowser.open(`${tmpPath}/test.drawio`);
     await page.waitForSelector('.jp-DrawioWidget svg', { timeout: 60000 });
 
-    const downloadPromise = page
-      .waitForEvent('download', { timeout: 10000 })
-      .catch(() => null);
+    const downloadPromise = page.waitForEvent('download', { timeout: 10000 });
 
     await page.evaluate(async () => {
       const app = (window as any).jupyterapp;
@@ -269,9 +328,99 @@ test.describe('PNG Export', () => {
     });
 
     const download = await downloadPromise;
-    if (download) {
-      const filename = download.suggestedFilename();
-      expect(filename).toMatch(/\.png$/);
-    }
+    expect(download.suggestedFilename()).toMatch(/\.png$/);
+  });
+});
+
+/**
+ * Download one cell as PNG at the default 300 DPI and decode the size of the file.
+ */
+async function downloadCellSize(
+  page: IJupyterLabPageFixture,
+  file: string,
+  cell: string
+): Promise<{ width: number; height: number }> {
+  const content = `<mxfile host="test">
+  <diagram id="labels" name="Page-1">
+    <mxGraphModel grid="0">
+      <root>
+        <mxCell id="0" />
+        <mxCell id="1" parent="0" />
+        ${cell}
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>`;
+  await page.contents.uploadContent(content, 'text', file);
+  await page.filebrowser.open(file);
+  await expect(page.locator('.jp-DrawioWidget svg foreignObject')).toHaveCount(
+    1,
+    { timeout: 90000 }
+  );
+
+  const downloadPromise = page.waitForEvent('download', { timeout: 30000 });
+  await page.evaluate(async () => {
+    const app = (window as any).jupyterapp;
+    await app.commands.execute('drawio:download-as-png');
+  });
+  const download = await downloadPromise;
+  const png = fs.readFileSync(await download.path());
+  return page.evaluate(async base64 => {
+    const image = new Image();
+    image.src = `data:image/png;base64,${base64}`;
+    await image.decode();
+    return { width: image.naturalWidth, height: image.naturalHeight };
+  }, png.toString('base64'));
+}
+
+// The viewer gives each HTML label a foreignObject about 20,000 units wide. A crop that
+// counts it asks a canvas over the browser limit and no file arrives; a crop that drops
+// the labels leaves out the label below the shape here.
+test.describe('PNG Export of HTML labels', () => {
+  test('should crop the download to the shape and its label', async ({
+    page,
+    tmpPath
+  }) => {
+    test.setTimeout(120000);
+    await page.goto();
+    const size = await downloadCellSize(
+      page,
+      `${tmpPath}/labels.drawio`,
+      `<mxCell id="2" value="Below" style="rounded=0;whiteSpace=wrap;html=1;verticalLabelPosition=bottom;verticalAlign=top;" vertex="1" parent="1">
+          <mxGeometry x="40" y="40" width="200" height="40" as="geometry" />
+        </mxCell>`
+    );
+
+    // The shape is 200 by 40 and the one-line label ends 21 below it. With 10 of padding on
+    // each side at the default 300 DPI that is 688 by 253, within a margin of 5%. Without
+    // the label the height would be 188.
+    expect(Math.abs(size.width - 688)).toBeLessThan(688 * 0.05);
+    expect(Math.abs(size.height - 253)).toBeLessThan(253 * 0.05);
+  });
+
+  // With overflow=block the DOM rectangle of the label is the width of the cell, and the
+  // sentence paints past it. A crop to that rectangle cuts the sentence with no error.
+  test('should hold a block label wider than its cell', async ({
+    page,
+    tmpPath
+  }) => {
+    test.setTimeout(120000);
+    await page.goto();
+    const sentence =
+      'A plain sentence in a nowrap block label, longer than its cell';
+    const size = await downloadCellSize(
+      page,
+      `${tmpPath}/block.drawio`,
+      `<mxCell id="2" value="${sentence}" style="rounded=0;html=1;overflow=block;" vertex="1" parent="1">
+          <mxGeometry x="100" y="100" width="120" height="40" as="geometry" />
+        </mxCell>`
+    );
+
+    const sentenceWidth = await page.evaluate(text => {
+      const ctx = document.createElement('canvas').getContext('2d')!;
+      ctx.font = '12px Helvetica';
+      return ctx.measureText(text).width;
+    }, sentence);
+    expect(size.width).toBeGreaterThan((sentenceWidth * 300) / 96);
   });
 });

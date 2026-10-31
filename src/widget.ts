@@ -100,6 +100,131 @@ export function getExportSettings(): {
 }
 
 /**
+ * Draw a region of the SVG, given in SVG user units, over the whole canvas of ctx.
+ */
+function drawSvgRegion(
+  svg: SVGSVGElement,
+  region: DOMRect,
+  ctx: CanvasRenderingContext2D,
+  clearBackground = false
+): Promise<void> {
+  // Clone SVG and set viewBox to crop to content
+  const svgClone = svg.cloneNode(true) as SVGSVGElement;
+  svgClone.setAttribute(
+    'viewBox',
+    `${region.x} ${region.y} ${region.width} ${region.height}`
+  );
+  svgClone.setAttribute('width', String(region.width));
+  svgClone.setAttribute('height', String(region.height));
+  // Remove any inline width/height styles that might override attributes
+  svgClone.style.width = '';
+  svgClone.style.height = '';
+  if (clearBackground) {
+    svgClone.style.background = 'none';
+  }
+
+  // Serialize SVG to string and create data URI
+  const serializer = new XMLSerializer();
+  const svgString = serializer.serializeToString(svgClone);
+  const svgBase64 = btoa(unescape(encodeURIComponent(svgString)));
+  const dataUri = `data:image/svg+xml;base64,${svgBase64}`;
+
+  // Load SVG as image and draw to canvas
+  return new Promise((resolve, reject) => {
+    const img = new Image();
+    img.onload = () => {
+      ctx.drawImage(img, 0, 0, ctx.canvas.width, ctx.canvas.height);
+      resolve();
+    };
+    img.onerror = () => reject(new Error('Failed to load SVG as image'));
+    img.src = dataUri;
+  });
+}
+
+/**
+ * Get the box of the pixels the browser paints in a region of the SVG, in SVG
+ * user units, or null when it paints none.
+ */
+async function scanPaintedBox(
+  svg: SVGSVGElement,
+  region: DOMRect,
+  scale: number
+): Promise<DOMRect | null> {
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.ceil(region.width * scale);
+  canvas.height = Math.ceil(region.height * scale);
+  const ctx = canvas.getContext('2d');
+  if (!ctx) {
+    throw new Error('Failed to get canvas context');
+  }
+  await drawSvgRegion(svg, region, ctx, true);
+
+  const { width, height } = canvas;
+  const { data } = ctx.getImageData(0, 0, width, height);
+  let left = width;
+  let top = height;
+  let right = -1;
+  let bottom = -1;
+  for (let y = 0; y < height; y++) {
+    for (let x = 0; x < width; x++) {
+      if (data[(y * width + x) * 4 + 3] > 0) {
+        left = Math.min(left, x);
+        right = Math.max(right, x);
+        top = Math.min(top, y);
+        bottom = Math.max(bottom, y);
+      }
+    }
+  }
+  if (right < 0) {
+    return null;
+  }
+
+  const unitsX = region.width / width;
+  const unitsY = region.height / height;
+  return new DOMRect(
+    region.x + left * unitsX,
+    region.y + top * unitsY,
+    (right + 1 - left) * unitsX,
+    (bottom + 1 - top) * unitsY
+  );
+}
+
+/**
+ * Get the box of the drawn content in SVG user units. The viewer gives each
+ * HTML label a foreignObject about 20,000 units wide, and no DOM rectangle
+ * bounds what a label paints, so such a diagram is cropped to its pixels.
+ */
+async function getContentBox(svg: SVGSVGElement): Promise<DOMRect> {
+  const bbox = svg.getBBox();
+  if (!svg.querySelector('foreignObject')) {
+    return bbox;
+  }
+
+  const scale = Math.min(1, 4000 / Math.max(bbox.width, bbox.height));
+  const box = await scanPaintedBox(svg, bbox, scale);
+  if (!box) {
+    return bbox;
+  }
+  if (scale === 1) {
+    return box;
+  }
+
+  // The scan pixels are larger than a unit: read the exact edges at scale 1
+  const widen = 2 / scale;
+  const exact = await scanPaintedBox(
+    svg,
+    new DOMRect(
+      box.x - widen,
+      box.y - widen,
+      box.width + 2 * widen,
+      box.height + 2 * widen
+    ),
+    1
+  );
+  return exact ?? box;
+}
+
+/**
  * Convert SVG element to PNG blob, cropped to diagram content
  */
 async function svgToPng(
@@ -109,7 +234,7 @@ async function svgToPng(
   customColor: string
 ): Promise<Blob> {
   // Get the actual bounding box of content from original SVG
-  const bbox = svg.getBBox();
+  const bbox = await getContentBox(svg);
 
   // Add padding around the content (10 pixels)
   const padding = 10;
@@ -118,9 +243,14 @@ async function svgToPng(
   const cropWidth = bbox.width + padding * 2;
   const cropHeight = bbox.height + padding * 2;
 
-  // Use 96 DPI as source (standard screen DPI)
+  // Use 96 DPI as source (standard screen DPI). A canvas over the browser limits
+  // gives no blob, so a crop that large exports at a lower DPI
   const sourceDPI = 96;
-  const scale = targetDPI / sourceDPI;
+  const scale = Math.min(
+    targetDPI / sourceDPI,
+    32000 / Math.max(cropWidth, cropHeight),
+    16000 / Math.sqrt(cropWidth * cropHeight)
+  );
 
   // Create canvas at target resolution
   const canvas = document.createElement('canvas');
@@ -156,43 +286,24 @@ async function svgToPng(
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
 
-  // Clone SVG and set viewBox to crop to content
-  const svgClone = svg.cloneNode(true) as SVGSVGElement;
-  svgClone.setAttribute(
-    'viewBox',
-    `${cropX} ${cropY} ${cropWidth} ${cropHeight}`
+  await drawSvgRegion(
+    svg,
+    new DOMRect(cropX, cropY, cropWidth, cropHeight),
+    ctx
   );
-  svgClone.setAttribute('width', String(cropWidth));
-  svgClone.setAttribute('height', String(cropHeight));
-  // Remove any inline width/height styles that might override attributes
-  svgClone.style.width = '';
-  svgClone.style.height = '';
 
-  // Serialize SVG to string and create data URI
-  const serializer = new XMLSerializer();
-  const svgString = serializer.serializeToString(svgClone);
-  const svgBase64 = btoa(unescape(encodeURIComponent(svgString)));
-  const dataUri = `data:image/svg+xml;base64,${svgBase64}`;
-
-  // Load SVG as image and draw to canvas
   return new Promise((resolve, reject) => {
-    const img = new Image();
-    img.onload = () => {
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-      canvas.toBlob(
-        blob => {
-          if (blob) {
-            resolve(blob);
-          } else {
-            reject(new Error('Failed to create PNG blob'));
-          }
-        },
-        'image/png',
-        1.0
-      );
-    };
-    img.onerror = () => reject(new Error('Failed to load SVG as image'));
-    img.src = dataUri;
+    canvas.toBlob(
+      blob => {
+        if (blob) {
+          resolve(blob);
+        } else {
+          reject(new Error('Failed to create PNG blob'));
+        }
+      },
+      'image/png',
+      1.0
+    );
   });
 }
 

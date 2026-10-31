@@ -67,10 +67,12 @@ build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
     "jupyterlab_drawio_render_extension/labextension/static/style.js",
     "jupyterlab_drawio_render_extension/labextension/package.json",
+    "jupyterlab_drawio_render_extension/static/viewer-static.min.js",
     "jupyterlab_drawio_render_extension/static/shapes.min.js",
     "jupyterlab_drawio_render_extension/static/stencils.min.js",
 ]
-skip-if-exists = ["jupyterlab_drawio_render_extension/labextension/static/style.js"]
+# Only an sdist holds PKG-INFO, with the files built. A build from the project folder always runs the build command and its download.
+skip-if-exists = ["PKG-INFO"]  # template-sync: keep
 
 [tool.hatch.build.hooks.jupyter-builder.build-kwargs]
 build_cmd = "build:prod"
@@ -92,6 +94,9 @@ before-build-npm = [
     "jlpm build:prod"
 ]
 before-build-python = ["jlpm clean:all"]
+# The mock PyPI of the check, pypiserver 2.3.2 on Python 3.13, answers 400 when metadata plus a file part held in memory pass 102400 bytes.
+# Newer pypiserver prints "Listening on" to stderr and jupyter-releaser waits for it on stdout, so the limit is raised in place.
+before-publish-assets = ["""python -c "import pathlib, pypiserver; [f.write_text(f.read_text().replace('MEMFILE_MAX = 102400', 'MEMFILE_MAX = 2 ** 30')) for f in pathlib.Path(pypiserver.__file__).parent.rglob('bottle.py')]" """]
 
 [tool.check-wheel-contents]
 ignore = ["W002"]
