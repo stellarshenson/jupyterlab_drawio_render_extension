@@ -2,6 +2,12 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## [1.0.26] - 2026-10-31
+
+### Fixed
+
+- Ship the draw.io viewer, shapes and stencils of one upstream version from every build
+
 ## [1.0.25] - 2026-10-31
 
 ### Fixed
