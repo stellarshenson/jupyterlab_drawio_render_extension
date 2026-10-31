@@ -2,6 +2,12 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## [1.0.25] - 2026-10-31
+
+### Fixed
+
+- Fetch the drawio stencils in the project build
+
 ## [1.0.23] - 2026-10-30
 
 ### Changed
