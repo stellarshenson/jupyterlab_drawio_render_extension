@@ -216,6 +216,19 @@ test.describe('SVG Rendering', () => {
   });
 });
 
+// The wheel must hold these git-ignored files: without them the viewer draws
+// generic frames for vendor shapes (AWS, Cisco, Veeam) and every other test passes.
+test.describe('Draw.io Static Assets', () => {
+  for (const asset of ['shapes.min.js', 'stencils.min.js']) {
+    test(`should serve static/${asset}`, async ({ request }) => {
+      const response = await request.get(
+        `jupyterlab-drawio-render-extension/static/${asset}`
+      );
+      expect(response.status()).toBe(200);
+    });
+  }
+});
+
 // PNG Export tests - these require SVG to be rendered
 test.describe('PNG Export', () => {
   test.skip(!!process.env.CI, 'Skipping export tests in CI');

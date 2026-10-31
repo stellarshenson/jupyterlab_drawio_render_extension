@@ -67,6 +67,8 @@ build-function = "hatch_jupyter_builder.npm_builder"
 ensured-targets = [
     "jupyterlab_drawio_render_extension/labextension/static/style.js",
     "jupyterlab_drawio_render_extension/labextension/package.json",
+    "jupyterlab_drawio_render_extension/static/shapes.min.js",
+    "jupyterlab_drawio_render_extension/static/stencils.min.js",
 ]
 skip-if-exists = ["jupyterlab_drawio_render_extension/labextension/static/style.js"]
 
