@@ -333,13 +333,14 @@ test.describe('PNG Export', () => {
 });
 
 /**
- * Download one cell as PNG at the default 300 DPI and decode the size of the file.
+ * Download cells with the given number of HTML labels as PNG at the default 300 DPI.
  */
-async function downloadCellSize(
+async function downloadCellsPng(
   page: IJupyterLabPageFixture,
   file: string,
-  cell: string
-): Promise<{ width: number; height: number }> {
+  cell: string,
+  labels = 1
+): Promise<Buffer> {
   const content = `<mxfile host="test">
   <diagram id="labels" name="Page-1">
     <mxGraphModel grid="0">
@@ -354,7 +355,7 @@ async function downloadCellSize(
   await page.contents.uploadContent(content, 'text', file);
   await page.filebrowser.open(file);
   await expect(page.locator('.jp-DrawioWidget svg foreignObject')).toHaveCount(
-    1,
+    labels,
     { timeout: 90000 }
   );
 
@@ -364,7 +365,18 @@ async function downloadCellSize(
     await app.commands.execute('drawio:download-as-png');
   });
   const download = await downloadPromise;
-  const png = fs.readFileSync(await download.path());
+  return fs.readFileSync(await download.path());
+}
+
+/**
+ * Download one cell as PNG at the default 300 DPI and decode the size of the file.
+ */
+async function downloadCellSize(
+  page: IJupyterLabPageFixture,
+  file: string,
+  cell: string
+): Promise<{ width: number; height: number }> {
+  const png = await downloadCellsPng(page, file, cell);
   return page.evaluate(async base64 => {
     const image = new Image();
     image.src = `data:image/png;base64,${base64}`;
@@ -422,5 +434,94 @@ test.describe('PNG Export of HTML labels', () => {
       return ctx.measureText(text).width;
     }, sentence);
     expect(size.width).toBeGreaterThan((sentenceWidth * 300) / 96);
+  });
+
+  // The viewer fits this diagram to the panel, so the caption is drawn at a font size under
+  // 0.7 units. A scan at scale 1 paints it at alpha 0, and the crop cuts it with no error.
+  test('should keep a small caption outside the other paint', async ({
+    page,
+    tmpPath
+  }) => {
+    test.setTimeout(120000);
+    await page.goto();
+    const cell = (
+      id: number,
+      value: string,
+      style: string,
+      x: number,
+      y: number,
+      width: number,
+      height: number
+    ) =>
+      `<mxCell id="${id}" value="${value}" style="${style}" vertex="1" parent="1">
+          <mxGeometry x="${x}" y="${y}" width="${width}" height="${height}" as="geometry" />
+        </mxCell>`;
+    let cells = cell(
+      2,
+      'Footnote: reviewed by the architecture board',
+      'text;html=1;strokeColor=none;fillColor=none;align=center;verticalAlign=middle;whiteSpace=nowrap;fontSize=12;',
+      7000,
+      4500,
+      400,
+      30
+    );
+    let id = 3;
+    for (const x of [0, 7000, 14000]) {
+      for (const y of [0, 3500]) {
+        cells += cell(
+          id++,
+          `Node ${x} ${y}`,
+          'rounded=0;whiteSpace=wrap;html=1;fontSize=48;',
+          x,
+          y,
+          400,
+          200
+        );
+      }
+    }
+    const png = await downloadCellsPng(
+      page,
+      `${tmpPath}/caption.drawio`,
+      cells,
+      7
+    );
+
+    // The shapes span 14,400 by 3,700 units. Ink more than 400 units below them is the
+    // caption, about 240 units wide.
+    const captionWidth = await page.evaluate(async base64 => {
+      const image = new Image();
+      image.src = `data:image/png;base64,${base64}`;
+      await image.decode();
+      const { naturalWidth: width, naturalHeight: height } = image;
+      const canvas = document.createElement('canvas');
+      canvas.width = width;
+      canvas.height = height;
+      const ctx = canvas.getContext('2d')!;
+      ctx.fillStyle = '#ffffff';
+      ctx.fillRect(0, 0, width, height);
+      ctx.drawImage(image, 0, 0);
+      const { data } = ctx.getImageData(0, 0, width, height);
+      const inkBox = (firstRow: number) => {
+        let left = width;
+        let right = -1;
+        let top = height;
+        for (let y = firstRow; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const k = (y * width + x) * 4;
+            if (data[k] < 255 || data[k + 1] < 255 || data[k + 2] < 255) {
+              left = Math.min(left, x);
+              right = Math.max(right, x);
+              top = Math.min(top, y);
+            }
+          }
+        }
+        return { top, inkWidth: Math.max(0, right + 1 - left) };
+      };
+      const all = inkBox(0);
+      const pixelsPerUnit = all.inkWidth / 14400;
+      const below = Math.ceil(all.top + 4100 * pixelsPerUnit);
+      return inkBox(below).inkWidth / pixelsPerUnit;
+    }, png.toString('base64'));
+    expect(captionWidth).toBeGreaterThan(150);
   });
 });

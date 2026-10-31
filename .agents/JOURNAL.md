@@ -72,3 +72,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 23. **Task - Require Python 3.12** (v1.0.27): raised the minimum Python to 3.12 on the owner's decision<br>
     **Result**: `requires-python` in `pyproject.toml` moved to `>=3.12`, and the classifiers for Python 3.10 and 3.11 are removed. Runtime floors already excluded older versions on some extensions, where pip then installed a release from before the scoped npm rename with no error. The dependency floors stay. `uv pip compile --python-version 3.12` resolves every runtime requirement, and CI runs Python 3.13.
+
+24. **Task - Caption in the PNG export** (v1.0.28): text far outside the other paint no longer disappears from the PNG<br>
+    **Result**: `getContentBox` in `src/widget.ts` found the painted area from a low-resolution scan, so a small caption far from the shapes was cut from the file with no error. It now scans once at about full scale, in tiles of at most 4,000 by 4,000 on one reused canvas, and takes the box of all painted pixels. The canvas cap in `svgToPng` applies only with a foreignObject. A new Galata test fails on 1.0.26 and passes here. Known limit: text painting under 0.7 device pixels at the scan is still cut, and export takes about 2 s on the project fixture and 16 s after 6 clicks of Zoom In.

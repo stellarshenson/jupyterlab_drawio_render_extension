@@ -142,57 +142,11 @@ function drawSvgRegion(
 }
 
 /**
- * Get the box of the pixels the browser paints in a region of the SVG, in SVG
- * user units, or null when it paints none.
- */
-async function scanPaintedBox(
-  svg: SVGSVGElement,
-  region: DOMRect,
-  scale: number
-): Promise<DOMRect | null> {
-  const canvas = document.createElement('canvas');
-  canvas.width = Math.ceil(region.width * scale);
-  canvas.height = Math.ceil(region.height * scale);
-  const ctx = canvas.getContext('2d');
-  if (!ctx) {
-    throw new Error('Failed to get canvas context');
-  }
-  await drawSvgRegion(svg, region, ctx, true);
-
-  const { width, height } = canvas;
-  const { data } = ctx.getImageData(0, 0, width, height);
-  let left = width;
-  let top = height;
-  let right = -1;
-  let bottom = -1;
-  for (let y = 0; y < height; y++) {
-    for (let x = 0; x < width; x++) {
-      if (data[(y * width + x) * 4 + 3] > 0) {
-        left = Math.min(left, x);
-        right = Math.max(right, x);
-        top = Math.min(top, y);
-        bottom = Math.max(bottom, y);
-      }
-    }
-  }
-  if (right < 0) {
-    return null;
-  }
-
-  const unitsX = region.width / width;
-  const unitsY = region.height / height;
-  return new DOMRect(
-    region.x + left * unitsX,
-    region.y + top * unitsY,
-    (right + 1 - left) * unitsX,
-    (bottom + 1 - top) * unitsY
-  );
-}
-
-/**
  * Get the box of the drawn content in SVG user units. The viewer gives each
  * HTML label a foreignObject about 20,000 units wide, and no DOM rectangle
- * bounds what a label paints, so such a diagram is cropped to its pixels.
+ * bounds what a label paints, so such a diagram is cropped to its pixels. Text
+ * under about 0.7 pixels paints none, and the viewer shrinks a wide diagram to
+ * fit its panel, so a region under 20,000 units is scanned at 20,000 pixels.
  */
 async function getContentBox(svg: SVGSVGElement): Promise<DOMRect> {
   const bbox = svg.getBBox();
@@ -200,28 +154,62 @@ async function getContentBox(svg: SVGSVGElement): Promise<DOMRect> {
     return bbox;
   }
 
-  const scale = Math.min(1, 4000 / Math.max(bbox.width, bbox.height));
-  const box = await scanPaintedBox(svg, bbox, scale);
-  if (!box) {
-    return bbox;
-  }
-  if (scale === 1) {
-    return box;
+  const tile = 4000;
+  const scale = Math.max(1, 20000 / Math.max(bbox.width, bbox.height));
+  const regionWidth = Math.ceil(bbox.width * scale);
+  const regionHeight = Math.ceil(bbox.height * scale);
+  const canvas = document.createElement('canvas');
+  const ctx = canvas.getContext('2d', { willReadFrequently: true });
+  if (!ctx) {
+    throw new Error('Failed to get canvas context');
   }
 
-  // The scan pixels are larger than a unit: read the exact edges at scale 1
-  const widen = 2 / scale;
-  const exact = await scanPaintedBox(
-    svg,
-    new DOMRect(
-      box.x - widen,
-      box.y - widen,
-      box.width + 2 * widen,
-      box.height + 2 * widen
-    ),
-    1
+  let left = regionWidth;
+  let top = regionHeight;
+  let right = -1;
+  let bottom = -1;
+  for (let y = 0; y < regionHeight; y += tile) {
+    for (let x = 0; x < regionWidth; x += tile) {
+      // Setting the size also clears the canvas of the tile before
+      const width = Math.min(tile, regionWidth - x);
+      const height = Math.min(tile, regionHeight - y);
+      canvas.width = width;
+      canvas.height = height;
+      await drawSvgRegion(
+        svg,
+        new DOMRect(
+          bbox.x + x / scale,
+          bbox.y + y / scale,
+          width / scale,
+          height / scale
+        ),
+        ctx,
+        true
+      );
+
+      const { data } = ctx.getImageData(0, 0, width, height);
+      for (let j = 0; j < height; j++) {
+        for (let i = 0; i < width; i++) {
+          if (data[(j * width + i) * 4 + 3] > 0) {
+            left = Math.min(left, x + i);
+            right = Math.max(right, x + i);
+            top = Math.min(top, y + j);
+            bottom = Math.max(bottom, y + j);
+          }
+        }
+      }
+    }
+  }
+  if (right < 0) {
+    return bbox;
+  }
+
+  return new DOMRect(
+    bbox.x + left / scale,
+    bbox.y + top / scale,
+    (right + 1 - left) / scale,
+    (bottom + 1 - top) / scale
   );
-  return exact ?? box;
 }
 
 /**
@@ -243,14 +231,17 @@ async function svgToPng(
   const cropWidth = bbox.width + padding * 2;
   const cropHeight = bbox.height + padding * 2;
 
-  // Use 96 DPI as source (standard screen DPI). A canvas over the browser limits
-  // gives no blob, so a crop that large exports at a lower DPI
+  // Use 96 DPI as source (standard screen DPI). A label can paint far from its
+  // shape, and a canvas over the browser limits gives no blob, so a crop that
+  // large exports at a lower DPI
   const sourceDPI = 96;
-  const scale = Math.min(
-    targetDPI / sourceDPI,
-    32000 / Math.max(cropWidth, cropHeight),
-    16000 / Math.sqrt(cropWidth * cropHeight)
-  );
+  const scale = svg.querySelector('foreignObject')
+    ? Math.min(
+        targetDPI / sourceDPI,
+        32000 / Math.max(cropWidth, cropHeight),
+        16000 / Math.sqrt(cropWidth * cropHeight)
+      )
+    : targetDPI / sourceDPI;
 
   // Create canvas at target resolution
   const canvas = document.createElement('canvas');
