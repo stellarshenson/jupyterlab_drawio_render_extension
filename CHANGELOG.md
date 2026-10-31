@@ -2,6 +2,12 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## [1.0.28] - 2026-10-31
+
+### Fixed
+
+- Keep a small caption outside the diagram area in the PNG export
+
 ## [1.0.27] - 2026-10-31
 
 ### Changed
