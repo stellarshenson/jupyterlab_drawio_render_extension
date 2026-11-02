@@ -2,6 +2,22 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## [1.0.30] - 2026-11-02
+
+### Added
+
+- Ship the `jupyterlab-drawio` CLI with `shapes`, `stencils`, `validate` and `layout`
+- Bundle the 10,446-shape palette index and decode all 204 stencil sets, 9,090 vendor shapes, from the packaged stencils
+- Ship an agent skill at `.agents/skills/jupyterlab-drawio-render-extension`, installed to `share/jupyter/agents/skills`
+
+### Changed
+
+- README documents the CLI and both skill locations, with the commands that link the installed copy
+
+### Fixed
+
+- Keep the palette notice out of Markdown collection so the Check Links job no longer imports the package for it
+
 ## [1.0.28] - 2026-10-31
 
 ### Fixed

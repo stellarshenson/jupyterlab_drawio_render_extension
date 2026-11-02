@@ -81,3 +81,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 26. **Task [Short] - Palette notice renamed** (v1.0.29): the Build workflow went red on Check Links after f5a4d19<br>
     **Result**: the Markdown notice inside the package became a pytest item there and its import needed `jupyter_server`, absent in that job; renamed to `SHAPE-INDEX-NOTICE.txt` with the attribution text unchanged, two references updated, `make test` green, CI green at 50d4a13.
+
+27. **Task - Final confirming round and green CI** (v1.0.29): the notice rename landed after the round-5 SHIP, so the delivered tree got one more confirming pass<br>
+    **Result**: architect and bug-hunter re-verified the delivered tree - notice rename complete and byte-identical, no Markdown left in the package, both references resolve, the check-links failure mode gone - and both returned SHIP, with one non-material MINOR (the ACC-PKG-12 evidence line still names the old `.md`; the rename log records it). GitHub is green on all three commits `f5a4d19`, `50d4a13` and `f27f8d1`: Build and Check Release. 12 acceptance criteria closed, 0 defects open.

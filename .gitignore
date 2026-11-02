@@ -140,3 +140,6 @@ jupyterlab_drawio_render_extension/static/stencils.min.js
 logs/
 tmp/
 .nodeenv/
+
+# Generated knowledge graph
+graphify-out/
