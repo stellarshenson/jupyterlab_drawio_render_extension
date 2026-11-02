@@ -84,3 +84,6 @@ This journal tracks substantive work on documents, diagrams, and documentation c
 
 27. **Task - Final confirming round and green CI** (v1.0.29): the notice rename landed after the round-5 SHIP, so the delivered tree got one more confirming pass<br>
     **Result**: architect and bug-hunter re-verified the delivered tree - notice rename complete and byte-identical, no Markdown left in the package, both references resolve, the check-links failure mode gone - and both returned SHIP, with one non-material MINOR (the ACC-PKG-12 evidence line still names the old `.md`; the rename log records it). GitHub is green on all three commits `f5a4d19`, `50d4a13` and `f27f8d1`: Build and Check Release. 12 acceptance criteria closed, 0 defects open.
+
+28. **Task - Build lifecycle brought to Makefile 1.48** (v1.0.30): the canonical Makefile went to every extension on 2026-11-02<br>
+    **Result**: took Makefile 1.48 verbatim from the canonical file; `mrproper` now removes `tmp`, `logs`, `.venv`, `graphify-out`, `coverage` and `.pytest_cache` in addition to the old build output, so a torn-down tree rebuilds without stale state; `install` and `publish` are `.NOTPARALLEL`, folding in the guard `jupyterlab_vscode_icons_extension` carried locally; the cleaned tree carries the tag `CHECKPOINT_JUPYTERLAB_4.6.5_UPGRADE_PORTED_1.0.30`.
