@@ -1,0 +1,16 @@
+<mxfile>
+  <diagram id="broken" name="Page-1">
+    <mxGraphModel dx="800" dy="600" grid="1" gridSize="10">
+      <root>
+        <mxCell id="0"/>
+        <mxCell id="1" parent="0"/>
+        <mxCell id="a" value="Service A" style="rounded=1;" vertex="1" parent="1">
+          <mxGeometry x="10" y="10" width="120" height="60" as="geometry"/>
+        </mxCell>
+        <mxCell id="e1" value="dangling" style="html=1;" edge="1" parent="1" source="a" target="missing">
+          <mxGeometry relative="1" as="geometry"/>
+        </mxCell>
+      </root>
+    </mxGraphModel>
+  </diagram>
+</mxfile>

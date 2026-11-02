@@ -1,0 +1,10 @@
+{
+  "direction": "TB",
+  "nodes": [
+    {"id": "a", "label": "Service A"},
+    {"id": "b", "label": "Service B"}
+  ],
+  "edges": [
+    {"source": "a", "target": "b", "label": "calls"}
+  ]
+}

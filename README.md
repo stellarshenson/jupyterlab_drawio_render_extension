@@ -37,6 +37,24 @@ Right-click on any diagram to access export options:
 
 Export automatically crops to diagram content with minimal padding.
 
+## Agent skill and CLI
+
+The package ships the `jupyterlab-drawio` CLI with four subcommands: `shapes` searches the official palette and stencil shapes, `stencils` lists the stencil sets, `validate` lints a `.drawio` file, and `layout` lays out a graph JSON with Graphviz.
+
+The agent skill lives in the repository at `.agents/skills/jupyterlab-drawio-render-extension/` and is installed to `share/jupyter/agents/skills/jupyterlab-drawio-render-extension/`. No agent reads `share/jupyter/agents/skills`, so link the installed copy into the directory your agent reads.
+
+After `pip install`, with the Python that runs the lab:
+
+```bash
+mkdir -p ~/.agents/skills && ln -sfn "$(python -c 'import sys; print(sys.prefix)')/share/jupyter/agents/skills/jupyterlab-drawio-render-extension" ~/.agents/skills/jupyterlab-drawio-render-extension
+```
+
+From a clone:
+
+```bash
+mkdir -p ~/.claude/skills && ln -sfn "$PWD/.agents/skills/jupyterlab-drawio-render-extension" ~/.claude/skills/jupyterlab-drawio-render-extension
+```
+
 ## Settings
 
 Configure the extension in **Settings > Draw.io Viewer**:
