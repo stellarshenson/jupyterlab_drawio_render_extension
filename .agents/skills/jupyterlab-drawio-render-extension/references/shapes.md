@@ -48,7 +48,7 @@ jupyterlab-drawio shapes "uml actor" --json
 Covered libraries: AWS (`aws3`/`aws4`), Azure, GCP, Cisco, Kubernetes, UML,
 BPMN, ER, electrical, P&ID, mockup/wireframe, flowchart, network, and the
 general/basic sets. The bundled index is the upstream draw.io shape data
-(Apache-2.0; see `data/SHAPE-INDEX-NOTICE.md` in the installed package). The
+(Apache-2.0; see `data/SHAPE-INDEX-NOTICE.txt` in the installed package). The
 stencil sets are decoded from `static/stencils.min.js`, which the build fetches.
 
 ## AI / LLM brand logos - not shipped

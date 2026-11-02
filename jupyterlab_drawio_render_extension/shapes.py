@@ -1,7 +1,7 @@
 """Searchable indexes of draw.io palette and stencil shapes.
 
 Palette entries come from the bundled shape-search index (Apache-2.0; see
-data/SHAPE-INDEX-NOTICE.md). Stencil entries are decoded from the
+data/SHAPE-INDEX-NOTICE.txt). Stencil entries are decoded from the
 static/stencils.min.js asset the build fetches, then cached under
 ~/.cache/jupyterlab-drawio (override with JUPYTERLAB_DRAWIO_CACHE).
 

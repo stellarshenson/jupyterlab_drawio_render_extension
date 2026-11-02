@@ -91,3 +91,4 @@ Wheel contents for the CLI data and the skill.
   - test-tags: MANUAL
   - log: 2026-11-01T14:49:18Z @kj added
   - log: 2026-11-02T08:44:56Z @kj closed
+  - log: 2026-11-02T08:56:44Z @kj notice renamed SHAPE-INDEX-NOTICE.md to .txt; the check-links job imported the package for the .md and failed without jupyter_server
