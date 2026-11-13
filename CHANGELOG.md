@@ -2,6 +2,17 @@
 
 <!-- <START NEW CHANGELOG ENTRY> -->
 
+## [1.0.33] - 2026-11-13
+
+### Changed
+
+- Skip the PayPal donate link in the link check
+
+### Fixed
+
+- Show the page buttons of a multi-page diagram
+- Show a failed PNG export and load the viewer again after a failed load
+
 ## [1.0.30] - 2026-11-02
 
 ### Added
