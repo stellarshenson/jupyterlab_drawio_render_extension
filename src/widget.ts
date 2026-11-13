@@ -555,7 +555,7 @@ export class DrawioWidget extends Widget {
       nav: true,
       resize: false,
       'auto-fit': true,
-      toolbar: 'zoom layers lightbox',
+      toolbar: 'pages zoom layers lightbox',
       'toolbar-position': 'top',
       edit: null,
       xml: xmlContent

@@ -48,3 +48,9 @@ The .drawio viewer widget, its PNG export and its styles.
   - repro: change generatePngFilename in src/widget.ts, run jlpm test: still green
   - log: 2026-11-13T06:58:45Z @kj added
   - log: 2026-11-13T07:02:56Z @kj rejected: not worth a fix: the function is 5 lines, the Galata download test runs the shipped one, and importing widget.ts into Jest pulls the document registry
+- [x] `DEF-VIEW-7-PAGES` **Multi-page diagram shows only page 1** - MEDIUM; a .drawio file with two or more pages opens on page 1 and the viewer toolbar has no control to reach the other pages; src/widget.ts
+  - evidence: src/widget.ts toolbar config is 'pages zoom layers lightbox'; the vendored viewer builds previous, next and the page counter only for the pages token and hides them for a one-page file; build_test.py at 1.0.32: Jest 38, pytest 13, Galata 20 green; a two-page file was not opened in a browser
+  - repro: open a .drawio file that holds two <diagram> elements: no previous/next buttons, page 2 cannot be shown
+  - root-cause: 2026-11-13T07:27:19Z @kj the GraphViewer toolbar config in _renderDiagram listed 'zoom layers lightbox' without the 'pages' token, and the viewer builds the page buttons only for that token
+  - log: 2026-11-13T07:27:19Z @kj added
+  - log: 2026-11-13T07:30:01Z @kj closed
