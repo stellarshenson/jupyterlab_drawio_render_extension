@@ -22,41 +22,6 @@
   background: var(--jp-layout-color0);
 }
 
-/* Toolbar */
-.jp-DrawioWidget-toolbar {
-  display: flex;
-  gap: 4px;
-  padding: 8px;
-  background: var(--jp-layout-color2);
-  border-bottom: 1px solid var(--jp-border-color1);
-}
-
-.jp-DrawioWidget-toolbarBtn {
-  padding: 4px 12px;
-  font-size: 13px;
-  border: 1px solid var(--jp-border-color1);
-  border-radius: 3px;
-  background: var(--jp-layout-color1);
-  color: var(--jp-ui-font-color1);
-  cursor: pointer;
-  transition: background 0.1s;
-}
-
-.jp-DrawioWidget-toolbarBtn:hover {
-  background: var(--jp-layout-color3);
-}
-
-.jp-DrawioWidget-toolbarBtn:active {
-  background: var(--jp-brand-color3);
-}
-
-/* Graph container */
-.jp-DrawioWidget-graph {
-  flex: 1;
-  overflow: auto;
-  background: white;
-}
-
 /* Loading state */
 .jp-DrawioWidget-loading {
   display: flex;

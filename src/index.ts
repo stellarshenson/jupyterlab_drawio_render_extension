@@ -87,6 +87,16 @@ const plugin: JupyterFrontEndPlugin<void> = {
     );
     const { docRegistry, commands } = app;
 
+    // A failed export is shown to the user, who otherwise sees nothing happen
+    const reportFailure = (action: string, error: unknown) => {
+      console.error(`${action} failed:`, error);
+      const reason = error instanceof Error ? error.message : String(error);
+      void commands.execute('apputils:notify', {
+        message: `${action} failed: ${reason}`,
+        type: 'error'
+      });
+    };
+
     // Register file type with icon
     docRegistry.addFileType({
       name: FILE_TYPE_NAME,
@@ -121,7 +131,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
             await widget.copyAsPng();
             console.log('Diagram copied to clipboard as PNG');
           } catch (error) {
-            console.error('Failed to copy diagram as PNG:', error);
+            reportFailure('Copy Diagram as PNG', error);
           }
         }
       }
@@ -139,7 +149,7 @@ const plugin: JupyterFrontEndPlugin<void> = {
             await widget.downloadAsPng();
             console.log('Diagram downloaded as PNG');
           } catch (error) {
-            console.error('Failed to download diagram as PNG:', error);
+            reportFailure('Download Diagram as PNG', error);
           }
         }
       }

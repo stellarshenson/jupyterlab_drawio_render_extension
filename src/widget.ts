@@ -402,6 +402,10 @@ function ensureViewerReady(): Promise<void> {
       );
     }
   })();
+  // A failed load is not kept: the next diagram opened loads the viewer again
+  viewerReady.catch(() => {
+    viewerReady = null;
+  });
 
   return viewerReady;
 }
@@ -433,6 +437,9 @@ export class DrawioWidget extends Widget {
 
     this.node.appendChild(this._errorDiv);
     this.node.appendChild(this._container);
+
+    // Nothing awaits ready, and the error panel already shows a failed load
+    this._ready.promise.catch(() => undefined);
 
     // Register widget for background updates
     activeWidgets.add(this);
